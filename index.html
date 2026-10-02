@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>诗词大会·国庆七天乐</title>
+<style>
+:root{
+  --paper:#f7f2e7; --paper2:#efe7d5; --ink:#22201c; --ink2:#5a554b;
+  --red:#b3382c; --gold:#a8802a; --line:#d8cdb4;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:"STKaiti","KaiTi","STSong","SimSun","Songti SC",serif;
+  background:var(--paper); color:var(--ink);
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(120,100,60,.05), transparent 40%),
+    radial-gradient(circle at 80% 90%, rgba(120,100,60,.05), transparent 40%);
+}
+#app{max-width:520px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;position:relative}
+.screen{display:none;flex:1;flex-direction:column;padding:18px 16px 90px;animation:fadeIn .35s ease}
+.screen.on{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h1,h2,h3{font-weight:normal}
+
+/* 首页 */
+.hero{padding:40px 0 24px;text-align:center}
+.hero .seal{
+  width:74px;height:74px;margin:0 auto 16px;background:var(--red);border-radius:10px;
+  color:#fdf8ec;font-size:30px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 14px rgba(179,56,44,.35);letter-spacing:2px;line-height:1.1;
+  font-family:"STKaiti","KaiTi",serif;
+}
+.hero h1{font-size:34px;letter-spacing:6px;margin-bottom:6px}
+.hero .sub{color:var(--ink2);font-size:15px;letter-spacing:3px}
+.hero .fest{margin-top:10px;display:inline-block;border:1px solid var(--red);color:var(--red);
+  padding:3px 14px;border-radius:20px;font-size:13px;letter-spacing:2px}
+.btn{
+  display:block;width:100%;padding:15px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);
+  font-size:18px;letter-spacing:5px;border-radius:8px;cursor:pointer;font-family:inherit;
+  transition:transform .08s ease, opacity .2s;
+}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.red{background:var(--red);border-color:var(--red);color:#fdf8ec}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.sm{padding:10px;font-size:15px;letter-spacing:2px}
+.home-btns{margin-top:26px;display:flex;flex-direction:column;gap:12px}
+.rank-row{display:flex;justify-content:space-around;margin-top:26px;text-align:center}
+.rank-row .n{font-size:22px;color:var(--red)}
+.rank-row .l{font-size:13px;color:var(--ink2);margin-top:4px;letter-spacing:2px}
+
+/* 关卡 */
+.lv-head{display:flex;justify-content:space-between;align-items:baseline;margin:8px 2px 14px}
+.lv-head h2{font-size:22px;letter-spacing:3px}
+.lv-head .day{color:var(--ink2);font-size:13px}
+.days{margin-bottom:8px;color:var(--ink2);font-size:13px;letter-spacing:1px;padding:0 2px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.cell{
+  border:1px solid var(--line);background:var(--paper2);border-radius:10px;padding:16px 6px 12px;
+  text-align:center;cursor:pointer;position:relative;
+}
+.cell .no{font-size:24px}
+.cell .st{font-size:12px;color:var(--ink2);margin-top:6px;letter-spacing:1px}
+.cell.done{border-color:var(--gold)}
+.cell.done .no{color:var(--gold)}
+.cell.lock{opacity:.45;cursor:not-allowed}
+.cell.lock .no{color:var(--ink2)}
+.cell .lock-ic{position:absolute;top:6px;right:8px;font-size:11px;color:var(--ink2)}
+.cell.cur{border-color:var(--red);box-shadow:0 0 0 1px var(--red)}
+
+/* 答题 */
+.q-top{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--ink2);margin-bottom:8px}
+.q-top .seg{color:var(--red)}
+.q-bar{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin-bottom:18px}
+.q-bar i{display:block;height:100%;background:var(--ink);width:0;transition:width .3s}
+.q-type{display:inline-block;font-size:12px;color:var(--paper);background:var(--ink2);border-radius:4px;padding:2px 8px;letter-spacing:2px;margin-bottom:14px}
+.q-text{font-size:22px;line-height:1.7;margin-bottom:8px;letter-spacing:1px}
+.q-text.sm{font-size:18px;color:var(--ink2)}
+.q-img{width:100%;border:1px solid var(--line);border-radius:10px;margin-bottom:10px;background:#f2ecdd}
+.opts{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.opt{
+  border:1px solid var(--line);background:var(--paper2);border-radius:10px;padding:13px 14px;
+  font-size:17px;cursor:pointer;text-align:left;font-family:inherit;color:var(--ink);
+  transition:background .15s;display:flex;gap:10px;align-items:baseline;line-height:1.5;
+}
+.opt .k{color:var(--ink2);font-size:14px;flex:none}
+.opt.sel{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.opt.sel .k{color:#cbc4b2}
+.opt.right{background:#2e5d3a;color:#eef5ee;border-color:#2e5d3a}
+.opt.right .k{color:#bcd4bd}
+.opt.wrong{background:var(--red);color:#fdf3f1;border-color:var(--red)}
+.opt:disabled{cursor:default}
+.q-foot{margin-top:18px;display:flex;gap:10px}
+.q-foot .btn{flex:1}
+.help-link{background:none;border:none;color:var(--ink2);font-size:13px;text-decoration:underline;
+  cursor:pointer;font-family:inherit;letter-spacing:1px;padding:8px 0}
+.help-link:disabled{opacity:.35;text-decoration:none;cursor:not-allowed}
+.feedback{margin-top:14px;padding:12px 14px;border-radius:8px;font-size:15px;line-height:1.7;display:none}
+.feedback.ok{display:block;background:rgba(46,93,58,.1);border:1px solid rgba(46,93,58,.35)}
+.feedback.no{display:block;background:rgba(179,56,44,.08);border:1px solid rgba(179,56,44,.3)}
+.feedback b{color:var(--red);font-weight:normal}
+
+/* 救援弹层 */
+.modal{position:fixed;inset:0;background:rgba(20,18,14,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal.on{display:flex}
+.sheet{background:var(--paper);border-radius:14px;padding:22px 18px;max-width:420px;width:100%;max-height:86vh;overflow:auto;animation:fadeIn .25s}
+.sheet h3{font-size:20px;letter-spacing:3px;margin-bottom:8px;text-align:center}
+.sheet .tip{color:var(--ink2);font-size:14px;line-height:1.8;margin-bottom:14px;text-align:center}
+.code{
+  background:var(--paper2);border:1px dashed var(--ink2);border-radius:8px;padding:14px 10px;
+  font-family:"Courier New",monospace;font-size:18px;letter-spacing:2px;text-align:center;
+  word-break:break-all;color:var(--ink);margin-bottom:10px;line-height:1.6;
+}
+.copy-btn{width:100%;margin-bottom:10px}
+textarea.paste{
+  width:100%;border:1px solid var(--line);border-radius:8px;background:var(--paper2);padding:12px;
+  font-family:"Courier New",monospace;font-size:15px;resize:none;height:64px;color:var(--ink);
+}
+.rescue-count{text-align:center;color:var(--ink2);font-size:13px;margin-top:6px}
+.err{color:var(--red);font-size:13px;text-align:center;margin-top:8px;min-height:18px}
+
+/* 结算 */
+.result-box{text-align:center;padding:26px 0 10px}
+.result-box .big{font-size:56px;color:var(--red)}
+.result-box h2{font-size:26px;letter-spacing:4px;margin:8px 0 4px}
+.result-box .sc{font-size:18px;color:var(--ink2);letter-spacing:2px}
+.result-box .sc b{color:var(--red);font-size:26px}
+.duan{margin:16px auto 6px;display:inline-block;border:2px solid var(--red);color:var(--red);
+  padding:6px 22px;border-radius:8px;font-size:20px;letter-spacing:6px}
+.share-note{margin-top:16px;color:var(--ink2);font-size:13px;line-height:1.8;text-align:center}
+
+/* 救援页 */
+.rescue-hint{color:var(--ink2);font-size:14px;line-height:1.9;margin-bottom:16px;text-align:center}
+.badge-rescue{display:inline-block;background:var(--red);color:#fdf8ec;font-size:12px;
+  padding:3px 10px;border-radius:4px;letter-spacing:2px;margin-bottom:12px}
+
+/* toast */
+#toast{position:fixed;left:50%;bottom:70px;transform:translateX(-50%);background:var(--ink);color:var(--paper);
+  padding:9px 18px;border-radius:20px;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:99;white-space:nowrap}
+#toast.on{opacity:.95}
+
+.foot{position:absolute;bottom:0;left:0;right:0;text-align:center;padding:14px;color:#b3aa96;font-size:12px;letter-spacing:2px}
+.tab-bar{position:absolute;bottom:0;left:0;right:0;display:flex;border-top:1px solid var(--line);background:var(--paper)}
+.tab-bar button{flex:1;background:none;border:none;padding:12px 0 16px;font-family:inherit;font-size:14px;
+  color:var(--ink2);letter-spacing:2px;cursor:pointer}
+.tab-bar button.on{color:var(--red)}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- 首页 -->
+  <section id="s-home" class="screen on">
+    <div class="hero">
+      <div class="seal">诗词<br>大会</div>
+      <h1>诗词大会</h1>
+      <div class="sub">国庆七天乐 · 每日三关</div>
+      <div class="fest">10.1 — 10.7</div>
+    </div>
+    <div class="rank-row">
+      <div><div class="n" id="home-score">0</div><div class="l">总积分</div></div>
+      <div><div class="n" id="home-rank">童生</div><div class="l">段位</div></div>
+      <div><div class="n" id="home-pass">0/21</div><div class="l">已过关卡</div></div>
+    </div>
+    <div class="home-btns">
+      <button class="btn red" id="btn-start">开始闯关</button>
+      <button class="btn ghost" id="btn-rescue-entry">好友救援入口</button>
+    </div>
+    <div class="share-note">卡壳了别担心——把<b>救援口令</b>发给好友，<br>好友答对，你继续闯关（全程限 3 次）。</div>
+  </section>
+
+  <!-- 选关 -->
+  <section id="s-levels" class="screen">
+    <div class="lv-head">
+      <h2>闯关地图</h2><span class="day" id="lv-day"></span>
+    </div>
+    <div class="days" id="lv-days"></div>
+    <div class="grid" id="lv-grid"></div>
+    <div class="foot">每日解锁 3 关 · 共 21 关</div>
+  </section>
+
+  <!-- 答题 -->
+  <section id="s-play" class="screen">
+    <div class="q-top">
+      <span id="q-title"></span>
+      <span>积分 <b class="seg" id="q-score">0</b></span>
+    </div>
+    <div class="q-bar"><i id="q-prog"></i></div>
+    <div class="q-type" id="q-type"></div>
+    <div class="q-text" id="q-text"></div>
+    <canvas class="q-img" id="q-canvas" width="600" height="380" style="display:none"></canvas>
+    <div class="q-text sm" id="q-sub"></div>
+    <div class="opts" id="q-opts"></div>
+    <div class="feedback" id="q-fb"></div>
+    <div class="q-foot">
+      <button class="btn sm" id="q-next" style="display:none">下一题</button>
+    </div>
+    <div style="text-align:center"><button class="help-link" id="q-help">这题卡壳了，求助好友（剩 <span id="q-rescue-left">3</span> 次）</button></div>
+  </section>
+
+  <!-- 结算 -->
+  <section id="s-result" class="screen">
+    <div class="result-box">
+      <div class="big" id="r-emoji">🎉</div>
+      <h2 id="r-title">闯关完成</h2>
+      <div class="sc">本关得分 <b id="r-score">0</b></div>
+      <div class="duan" id="r-rank">童生</div>
+    </div>
+    <div class="share-note" id="r-note"></div>
+    <div class="home-btns">
+      <button class="btn red" id="r-back">返回闯关地图</button>
+    </div>
+  </section>
+
+  <!-- 救援：发起（玩家在答题中） -->
+  <div class="modal" id="m-send">
+    <div class="sheet">
+      <h3>发出救援</h3>
+      <div class="tip">把下面的<b>救援口令</b>或<b>链接</b>发给好友。<br>好友答对后，把回执码发还给你。</div>
+      <div class="code" id="rs-code"></div>
+      <button class="btn sm copy-btn" id="rs-copy-code">复制口令</button>
+      <div class="code" id="rs-link" style="font-size:12px"></div>
+      <button class="btn sm copy-btn" id="rs-copy-link">复制链接</button>
+      <div class="tip" style="margin-top:14px">好友答对后，会拿到一串<b>回执码</b>，粘贴到下面：</div>
+      <textarea class="paste" id="rs-paste" placeholder="粘贴好友发回的回执码"></textarea>
+      <div class="err" id="rs-err"></div>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button class="btn sm ghost" id="rs-cancel" style="flex:1">取消</button>
+        <button class="btn sm red" id="rs-verify" style="flex:1">验证回执</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 救援：入口（好友打开） -->
+  <section id="s-rescue" class="screen">
+    <div class="badge-rescue">好友救援</div>
+    <div class="rescue-hint">你的朋友在「诗词大会」里卡壳了，<br>请你帮忙答对这一题！</div>
+    <div id="rc-form">
+      <textarea class="paste" id="rc-input" placeholder="粘贴好友发来的救援口令，或直接打开好友发的链接"></textarea>
+      <div class="err" id="rc-err"></div>
+      <button class="btn red" id="rc-go" style="margin-top:10px">开始救援</button>
+    </div>
+    <div id="rc-quiz" style="display:none">
+      <div class="q-type" id="rc-type"></div>
+      <div class="q-text" id="rc-text"></div>
+      <canvas class="q-img" id="rc-canvas" width="600" height="380" style="display:none"></canvas>
+      <div class="q-text sm" id="rc-sub"></div>
+      <div class="opts" id="rc-opts"></div>
+      <div class="feedback" id="rc-fb"></div>
+    </div>
+    <div id="rc-done" style="display:none;text-align:center;padding-top:20px">
+      <div style="font-size:52px">🏅</div>
+      <h2 style="font-size:24px;letter-spacing:4px;margin:10px 0 6px">救援成功</h2>
+      <div class="rescue-hint">把这串<b>回执码</b>发回给你的朋友：</div>
+      <div class="code" id="rc-receipt"></div>
+      <button class="btn sm copy-btn red" id="rc-copy">复制回执码</button>
+      <div class="rescue-hint" style="margin-top:14px">也欢迎你自己试试闯关 →</div>
+      <button class="btn sm ghost" id="rc-join">进入诗词大会</button>
+    </div>
+  </section>
+
+  <div class="tab-bar" id="tabbar" style="display:none">
+    <button data-go="s-home">首页</button>
+    <button data-go="s-levels">闯关</button>
+    <button data-go="s-rescue">救援</button>
+  </div>
+
+  <div id="toast"></div>
+</div>
+
+<script>
+/* ================= 题库 =================
+   字段: [题, 作者, 朝代, "句1|句2|...", "意象tag", 难度0-2, "主题|含义"(可选)]
+*/
+const POEMS = [
+["咏鹅","骆宾王","唐","鹅鹅鹅|曲项向天歌|白毛浮绿水|红掌拨清波","goose,water",0],
+["春晓","孟浩然","唐","春眠不觉晓|处处闻啼鸟|夜来风雨声|花落知多少","bird,flower,rain",0],
+["静夜思","李白","唐","床前明月光|疑是地上霜|举头望明月|低头思故乡","moon,frost,home",0,"思乡|客居他乡时对故乡的深深思念"],
+["登鹳雀楼","王之涣","唐","白日依山尽|黄河入海流|欲穷千里目|更上一层楼","sun,mountain,river",0,"励志|想要看得更远就要再上一层楼的进取之心"],
+["望庐山瀑布","李白","唐","日照香炉生紫烟|遥看瀑布挂前川|飞流直下三千尺|疑是银河落九天","sun,mountain,water",0],
+["绝句","杜甫","唐","两个黄鹂鸣翠柳|一行白鹭上青天|窗含西岭千秋雪|门泊东吴万里船","bird,snow,boat",0],
+["江雪","柳宗元","唐","千山鸟飞绝|万径人踪灭|孤舟蓑笠翁|独钓寒江雪","snow,boat,mountain",1,"孤独|大雪纷飞中独自垂钓的孤寂意境"],
+["悯农·其二","李绅","唐","锄禾日当午|汗滴禾下土|谁知盘中餐|粒粒皆辛苦","sun,field",0],
+["赋得古原草送别","白居易","唐","离离原上草|一岁一枯荣|野火烧不尽|春风吹又生","grass,fire",0,"哲理|野草顽强生命力，烧不尽吹又生"],
+["池上","白居易","唐","小娃撑小艇|偷采白莲回|不解藏踪迹|浮萍一道开","boat,lotus,water",0],
+["小池","杨万里","宋","泉眼无声惜细流|树阴照水爱晴柔|小荷才露尖尖角|早有蜻蜓立上头","water,lotus,dragonfly",0],
+["敕勒歌","北朝民歌","北朝","敕勒川|阴山下|天似穹庐|笼盖四野|天苍苍|野茫茫|风吹草低见牛羊","grass,wind,sheep",0],
+["风","李峤","唐","解落三秋叶|能开二月花|过江千尺浪|入竹万竿斜","wind,leaf,bamboo",1],
+["咏柳","贺知章","唐","碧玉妆成一树高|万条垂下绿丝绦|不知细叶谁裁出|二月春风似剪刀","willow,wind",0],
+["凉州词","王之涣","唐","黄河远上白云间|一片孤城万仞山|羌笛何须怨杨柳|春风不度玉门关","river,mountain,willow,frontier",1,"边塞|边关苍凉壮阔与戍边人的思乡之情"],
+["出塞","王昌龄","唐","秦时明月汉时关|万里长征人未还|但使龙城飞将在|不教胡马度阴山","moon,frontier,mountain",1,"边塞|希望有良将守边、制止战争的愿望"],
+["芙蓉楼送辛渐","王昌龄","唐","寒雨连江夜入吴|平明送客楚山孤|洛阳亲友如相问|一片冰心在玉壶","rain,river,mountain",1,"言志|以冰心玉壶自喻，表明操守清白"],
+["鹿柴","王维","唐","空山不见人|但闻人语响|返景入深林|复照青苔上","mountain,forest,moon",1],
+["送元二使安西","王维","唐","渭城朝雨浥轻尘|客舍青青柳色新|劝君更尽一杯酒|西出阳关无故人","rain,willow,wine",0,"友情|送别友人时依依惜别的深情"],
+["九月九日忆山东兄弟","王维","唐","独在异乡为异客|每逢佳节倍思亲|遥知兄弟登高处|遍插茱萸少一人","festival,mountain",0,"思乡|佳节思念远方亲人的情怀"],
+["古朗月行","李白","唐","小时不识月|呼作白玉盘|又疑瑶台镜|飞在青云端","moon,star",0],
+["望天门山","李白","唐","天门中断楚江开|碧水东流至此回|两岸青山相对出|孤帆一片日边来","mountain,river,boat,sun",0],
+["早发白帝城","李白","唐","朝辞白帝彩云间|千里江陵一日还|两岸猿声啼不住|轻舟已过万重山","cloud,boat,mountain,river",0],
+["黄鹤楼送孟浩然之广陵","李白","唐","故人西辞黄鹤楼|烟花三月下扬州|孤帆远影碧空尽|唯见长江天际流","tower,boat,river",0,"友情|目送友人远去的依依惜别"],
+["别董大","高适","唐","千里黄云白日曛|北风吹雁雪纷纷|莫愁前路无知己|天下谁人不识君","cloud,snow,goose,wind",1,"友情|豪迈的送别，鼓励友人前途光明"],
+["绝句·迟日江山丽","杜甫","唐","迟日江山丽|春风花草香|泥融飞燕子|沙暖睡鸳鸯","sun,flower,bird",0],
+["春夜喜雨","杜甫","唐","好雨知时节|当春乃发生|随风潜入夜|润物细无声|野径云俱黑|江船火独明|晓看红湿处|花重锦官城","rain,night,flower,boat",0],
+["江畔独步寻花","杜甫","唐","黄师塔前江水东|春光懒困倚微风|桃花一簇开无主|可爱深红爱浅红","flower,river,spring",0],
+["枫桥夜泊","张继","唐","月落乌啼霜满天|江枫渔火对愁眠|姑苏城外寒山寺|夜半钟声到客船","moon,boat,temple,night",0,"思乡|夜泊枫桥的羁旅愁思"],
+["滁州西涧","韦应物","唐","独怜幽草涧边生|上有黄鹂深树鸣|春潮带雨晚来急|野渡无人舟自横","grass,bird,boat,rain",1],
+["塞下曲","卢纶","唐","月黑雁飞高|单于夜遁逃|欲将轻骑逐|大雪满弓刀","snow,goose,night",1,"边塞|雪夜追敌的紧张与豪迈"],
+["游子吟","孟郊","唐","慈母手中线|游子身上衣|临行密密缝|意恐迟迟归|谁言寸草心|报得三春晖","home,needle",0,"亲情|歌颂母爱的伟大与无私"],
+["望洞庭","刘禹锡","唐","湖光秋月两相和|潭面无风镜未磨|遥望洞庭山水翠|白银盘里一青螺","moon,water,mountain",0],
+["浪淘沙","刘禹锡","唐","九曲黄河万里沙|浪淘风簸自天涯|如今直上银河去|同到牵牛织女家","river,star,water",1],
+["忆江南","白居易","唐","江南好|风景旧曾谙|日出江花红胜火|春来江水绿如蓝|能不忆江南","sun,flower,river",0],
+["小儿垂钓","胡令能","唐","蓬头稚子学垂纶|侧坐莓苔草映身|路人借问遥招手|怕得鱼惊不应人","child,water,fish",0],
+["悯农·其一","李绅","唐","春种一粒粟|秋收万颗子|四海无闲田|农夫犹饿死","field,grain",1],
+["寻隐者不遇","贾岛","唐","松下问童子|言师采药去|只在此山中|云深不知处","pine,mountain,cloud",0],
+["山行","杜牧","唐","远上寒山石径斜|白云生处有人家|停车坐爱枫林晚|霜叶红于二月花","mountain,cloud,leaf",0],
+["清明","杜牧","唐","清明时节雨纷纷|路上行人欲断魂|借问酒家何处有|牧童遥指杏花村","rain,flower,wine,child",0],
+["江南春","杜牧","唐","千里莺啼绿映红|水村山郭酒旗风|南朝四百八十寺|多少楼台烟雨中","bird,flower,tower,rain",0],
+["蜂","罗隐","唐","不论平地与山尖|无限风光尽被占|采得百花成蜜后|为谁辛苦为谁甜","bee,flower",1],
+["江上渔者","范仲淹","宋","江上往来人|但爱鲈鱼美|君看一叶舟|出没风波里","boat,water,fish",0],
+["元日","王安石","宋","爆竹声中一岁除|春风送暖入屠苏|千门万户曈曈日|总把新桃换旧符","festival,sun",0],
+["泊船瓜洲","王安石","宋","京口瓜洲一水间|钟山只隔数重山|春风又绿江南岸|明月何时照我还","boat,river,moon",1,"思乡|望月思归的乡愁"],
+["书湖阴先生壁","王安石","宋","茅檐长扫净无苔|花木成畦手自栽|一水护田将绿绕|两山排闼送青来","water,mountain,flower",1],
+["六月二十七日望湖楼醉书","苏轼","宋","黑云翻墨未遮山|白雨跳珠乱入船|卷地风来忽吹散|望湖楼下水如天","cloud,rain,wind,boat",1],
+["饮湖上初晴后雨","苏轼","宋","水光潋滟晴方好|山色空蒙雨亦奇|欲把西湖比西子|淡妆浓抹总相宜","water,mountain,rain",0],
+["惠崇春江晚景","苏轼","宋","竹外桃花三两枝|春江水暖鸭先知|蒌蒿满地芦芽短|正是河豚欲上时","bamboo,flower,river,duck",0],
+["题西林壁","苏轼","宋","横看成岭侧成峰|远近高低各不同|不识庐山真面目|只缘身在此山中","mountain,cloud",0,"哲理|当局者迷，旁观者清"],
+["夏日绝句","李清照","宋","生当作人杰|死亦为鬼雄|至今思项羽|不肯过江东","river,horse",1,"爱国|借项羽宁死不屈讽刺南宋朝廷"],
+["三衢道中","曾几","宋","梅子黄时日日晴|小溪泛尽却山行|绿阴不减来时路|添得黄鹂四五声","bird,mountain,water",0],
+["示儿","陆游","宋","死去元知万事空|但悲不见九州同|王师北定中原日|家祭无忘告乃翁","home",0,"爱国|临终仍盼国家统一的遗愿"],
+["秋夜将晓出篱门迎凉有感","陆游","宋","三万里河东入海|五千仞岳上摩天|遗民泪尽胡尘里|南望王师又一年","river,mountain",1,"爱国|盼望南宋军队收复失地"],
+["四时田园杂兴·昼出","范成大","宋","昼出耘田夜绩麻|村庄儿女各当家|童孙未解供耕织|也傍桑阴学种瓜","field,child",0],
+["四时田园杂兴·梅子","范成大","宋","梅子金黄杏子肥|麦花雪白菜花稀|日长篱落无人过|惟有蜻蜓蛱蝶飞","flower,grain,dragonfly",0],
+["晓出净慈寺送林子方","杨万里","宋","毕竟西湖六月中|风光不与四时同|接天莲叶无穷碧|映日荷花别样红","lotus,sun,water",0],
+["春日","朱熹","宋","胜日寻芳泗水滨|无边光景一时新|等闲识得东风面|万紫千红总是春","spring,flower,wind",0],
+["观书有感","朱熹","宋","半亩方塘一鉴开|天光云影共徘徊|问渠那得清如许|为有源头活水来","water,cloud",0,"哲理|不断学习才能保持思想清新"],
+["题临安邸","林升","宋","山外青山楼外楼|西湖歌舞几时休|暖风熏得游人醉|直把杭州作汴州","tower,mountain",1,"爱国|讽刺南宋统治者苟且偷安"],
+["游园不值","叶绍翁","宋","应怜屐齿印苍苔|小扣柴扉久不开|春色满园关不住|一枝红杏出墙来","flower,spring",0],
+["乡村四月","翁卷","宋","绿遍山原白满川|子规声里雨如烟|乡村四月闲人少|才了蚕桑又插田","rain,bird,field",1],
+["墨梅","王冕","元","我家洗砚池头树|朵朵花开淡墨痕|不要人夸好颜色|只留清气满乾坤","flower,ink",0,"言志|不求虚名、独善其身的高洁"],
+["石灰吟","于谦","明","千锤万凿出深山|烈火焚烧若等闲|粉骨碎身浑不怕|要留清白在人间","fire,mountain",0,"言志|以石灰自喻，坚守清白气节"],
+["竹石","郑燮","清","咬定青山不放松|立根原在破岩中|千磨万击还坚劲|任尔东西南北风","bamboo,mountain,wind",0,"言志|坚韧不拔、傲骨铮铮的品格"],
+["所见","袁枚","清","牧童骑黄牛|歌声振林樾|意欲捕鸣蝉|忽然闭口立","child,cow",0],
+["村居","高鼎","清","草长莺飞二月天|拂堤杨柳醉春烟|儿童散学归来早|忙趁东风放纸鸢","child,willow,wind,kite",0],
+["己亥杂诗","龚自珍","清","九州生气恃风雷|万马齐喑究可哀|我劝天公重抖擞|不拘一格降人才","wind,horse",1,"爱国|呼吁变革、渴求人才"],
+["观沧海","曹操","东汉","东临碣石|以观沧海|水何澹澹|山岛竦峙|树木丛生|百草丰茂|秋风萧瑟|洪波涌起","sea,mountain,wind",1,"言志|大海吞吐日月，抒发壮阔胸襟"],
+["饮酒","陶渊明","东晋","结庐在人境|而无车马喧|问君何能尔|心远地自偏|采菊东篱下|悠然见南山","chrysanthemum,mountain",1,"言志|归隐田园的超然心境"],
+["送杜少府之任蜀州","王勃","唐","城阙辅三秦|风烟望五津|与君离别意|同是宦游人|海内存知己|天涯若比邻","tower,mist",1,"友情|真正的友谊不受距离阻隔"],
+["次北固山下","王湾","唐","客路青山外|行舟绿水前|潮平两岸阔|风正一帆悬|海日生残夜|江春入旧年","boat,river,sun,mountain",1,"思乡|冬末春初江上景色与思乡之情"],
+["使至塞上","王维","唐","单车欲问边|属国过居延|征蓬出汉塞|归雁入胡天|大漠孤烟直|长河落日圆","frontier,goose,sun,river",1,"边塞|大漠落日的雄浑壮阔"],
+["闻王昌龄左迁龙标遥有此寄","李白","唐","杨花落尽子规啼|闻道龙标过五溪|我寄愁心与明月|随君直到夜郎西","flower,bird,moon",1,"友情|把思念托付明月陪伴友人"],
+["行路难","李白","唐","金樽清酒斗十千|玉盘珍羞直万钱|停杯投箸不能食|拔剑四顾心茫然|欲渡黄河冰塞川|将登太行雪满山|闲来垂钓碧溪上|忽复乘舟梦日边","wine,sea,boat",2,"励志|尽管前路艰难仍坚信理想能实现"],
+["渡荆门送别","李白","唐","渡远荆门外|来从楚国游|山随平野尽|江入大荒流|月下飞天镜|云生结海楼","moon,river,cloud,mountain",1],
+["望岳","杜甫","唐","岱宗夫如何|齐鲁青未了|造化钟神秀|阴阳割昏晓|荡胸生曾云|决眦入归鸟|会当凌绝顶|一览众山小","mountain,cloud,bird",1,"励志|勇攀顶峰、俯视一切的雄心"],
+["春望","杜甫","唐","国破山河在|城春草木深|感时花溅泪|恨别鸟惊心|烽火连三月|家书抵万金","flower,bird,war",1,"爱国|战乱中忧国思家的沉痛"],
+["白雪歌送武判官归京","岑参","唐","北风卷地白草折|胡天八月即飞雪|忽如一夜春风来|千树万树梨花开","snow,wind,flower",1,"边塞|以春花喻冬雪的奇丽想象"],
+["酬乐天扬州初逢席上见赠","刘禹锡","唐","巴山楚水凄凉地|二十三年弃置身|怀旧空吟闻笛赋|到乡翻似烂柯人|沉舟侧畔千帆过|病树前头万木春","boat,tree",2,"哲理|新事物必将取代旧事物"],
+["钱塘湖春行","白居易","唐","孤山寺北贾亭西|水面初平云脚低|几处早莺争暖树|谁家新燕啄春泥|乱花渐欲迷人眼|浅草才能没马蹄","bird,flower,water,cloud",1],
+["雁门太守行","李贺","唐","黑云压城城欲摧|甲光向日金鳞开|角声满天秋色里|塞上燕脂凝夜紫","cloud,sun,war",2,"边塞|描绘边关战事惨烈与将士忠勇"],
+["赤壁","杜牧","唐","折戟沉沙铁未销|自将磨洗认前朝|东风不与周郎便|铜雀春深锁二乔","river,wind",2,"咏史|感慨历史成败受机遇影响"],
+["泊秦淮","杜牧","唐","烟笼寒水月笼沙|夜泊秦淮近酒家|商女不知亡国恨|隔江犹唱后庭花","moon,water,boat,night",1,"爱国|讽刺晚唐统治者醉生梦死"],
+["夜雨寄北","李商隐","唐","君问归期未有期|巴山夜雨涨秋池|何当共剪西窗烛|却话巴山夜雨时","rain,night,lamp",1,"思乡|雨夜思念远方亲友"],
+["无题","李商隐","唐","相见时难别亦难|东风无力百花残|春蚕到死丝方尽|蜡炬成灰泪始干","spring,flower,candle",2,"爱情|至死不渝的坚贞爱情"],
+["相见欢","李煜","五代","无言独上西楼|月如钩|寂寞梧桐深院锁清秋|剪不断|理还乱|是离愁|别是一般滋味在心头","moon,leaf,home",2,"思乡|亡国之君的离愁别绪"],
+["渔家傲·秋思","范仲淹","宋","塞下秋来风景异|衡阳雁去无留意|四面边声连角起|千嶂里|长烟落日孤城闭|浊酒一杯家万里|燕然未勒归无计","goose,sun,frontier,wine",2,"边塞|功业未就、思乡难归的矛盾"],
+["浣溪沙","晏殊","宋","一曲新词酒一杯|去年天气旧亭台|夕阳西下几时回|无可奈何花落去|似曾相识燕归来|小园香径独徘徊","flower,bird,wine,sun",1,"哲理|对时光流逝的怅惘"],
+["登飞来峰","王安石","宋","飞来山上千寻塔|闻说鸡鸣见日升|不畏浮云遮望眼|自缘身在最高层","tower,cloud,sun",1,"励志|高瞻远瞩才能不被表象迷惑"],
+["江城子·密州出猎","苏轼","宋","老夫聊发少年狂|左牵黄|右擎苍|锦帽貂裘|千骑卷平冈|为报倾城随太守|亲射虎|看孙郎|酒酣胸胆尚开张|鬓微霜|又何妨","horse,dog,eagle",2,"言志|渴望为国效力的壮志"],
+["水调歌头","苏轼","宋","明月几时有|把酒问青天|不知天上宫阙|今夕是何年|我欲乘风归去|又恐琼楼玉宇|高处不胜寒|起舞弄清影|何似在人间|转朱阁|低绮户|照无眠|不应有恨|何事长向别时圆|人有悲欢离合|月有阴晴圆缺|此事古难全|但愿人长久|千里共婵娟","moon,wine,wind",1,"哲理|旷达面对人生聚散离合"],
+["渔家傲","李清照","宋","天接云涛连晓雾|星河欲转千帆舞|仿佛梦魂归帝所|闻天语|殷勤问我归何处|我报路长嗟日暮|学诗谩有惊人句|九万里风鹏正举","cloud,boat,star",2,"言志|对理想境界的追求与彷徨"],
+["游山西村","陆游","宋","莫笑农家腊酒浑|丰年留客足鸡豚|山重水复疑无路|柳暗花明又一村","wine,mountain,flower,willow",1,"哲理|困境中往往孕育着转机"],
+["南乡子·登京口北固亭有怀","辛弃疾","宋","何处望神州|满眼风光北固楼|千古兴亡多少事|悠悠|不尽长江滚滚流","tower,river",2,"爱国|借古讽今的兴亡之叹"],
+["破阵子·为陈同甫赋壮词","辛弃疾","宋","醉里挑灯看剑|梦回吹角连营|八百里分麾下炙|五十弦翻塞外声|沙场秋点兵|马作的卢飞快|弓如霹雳弦惊|了却君王天下事|赢得生前身后名|可怜白发生","lamp,war,horse",2,"爱国|壮志难酬的悲愤"],
+["过零丁洋","文天祥","宋","辛苦遭逢起一经|干戈寥落四周星|山河破碎风飘絮|身世浮沉雨打萍|惶恐滩头说惶恐|零丁洋里叹零丁|人生自古谁无死|留取丹心照汗青","sea,war,rain",2,"爱国|以死明志的民族气节"],
+["天净沙·秋思","马致远","元","枯藤老树昏鸦|小桥流水人家|古道西风瘦马|夕阳西下|断肠人在天涯","sun,bridge,horse,home",1,"思乡|游子漂泊天涯的断肠之愁"],
+["山坡羊·潼关怀古","张养浩","元","峰峦如聚|波涛如怒|山河表里潼关路|望西都|意踌躇|伤心秦汉经行处|宫阙万间都做了土|兴|百姓苦|亡|百姓苦","mountain,river,tower",2,"咏史|兴亡皆苦百姓的民本思想"],
+["己亥杂诗·浩荡","龚自珍","清","浩荡离愁白日斜|吟鞭东指即天涯|落红不是无情物|化作春泥更护花","sun,flower,horse",1,"言志|甘为奉献的献身精神"],
+["关雎","诗经·周南","先秦","关关雎鸠|在河之洲|窈窕淑女|君子好逑|求之不得|寤寐思服|悠哉悠哉|辗转反侧","bird,river",1,"爱情|对美好爱情的追求与思念"],
+["蒹葭","诗经·秦风","先秦","蒹葭苍苍|白露为霜|所谓伊人|在水一方|溯洄从之|道阻且长|溯游从之|宛在水中央","reed,water,autumn",1,"爱情|可望而不可即的朦胧追求"],
+["木兰诗","北朝民歌","北朝","唧唧复唧唧|木兰当户织|不闻机杼声|惟闻女叹息|万里赴戎机|关山度若飞|朔气传金柝|寒光照铁衣|将军百战死|壮士十年归","war,horse,frontier",1,"言志|巾帼不让须眉的忠孝两全"],
+["卖炭翁","白居易","唐","卖炭翁|伐薪烧炭南山中|满面尘灰烟火色|两鬓苍苍十指黑|可怜身上衣正单|心忧炭贱愿天寒","fire,snow",1,"讽喻|揭露宫市对百姓的盘剥"],
+["竹里馆","王维","唐","独坐幽篁里|弹琴复长啸|深林人不知|明月来相照","moon,bamboo,forest",1],
+["鸟鸣涧","王维","唐","人闲桂花落|夜静春山空|月出惊山鸟|时鸣春涧中","moon,bird,mountain,night",1],
+["山居秋暝","王维","唐","空山新雨后|天气晚来秋|明月松间照|清泉石上流|竹喧归浣女|莲动下渔舟","moon,pine,water,bamboo",1],
+["终南别业","王维","唐","中岁颇好道|晚家南山陲|兴来每独往|胜事空自知|行到水穷处|坐看云起时","water,cloud,mountain",2,"哲理|随遇而安、物我两忘的境界"],
+["相思","王维","唐","红豆生南国|春来发几枝|愿君多采撷|此物最相思","bean,leaf",0,"爱情|借红豆寄托相思之情"],
+["杂诗","王维","唐","君自故乡来|应知故乡事|来日绮窗前|寒梅著花未","flower,home",0,"思乡|借问故乡梅花寄托乡愁"],
+["宿建德江","孟浩然","唐","移舟泊烟渚|日暮客愁新|野旷天低树|江清月近人","boat,moon,river",1,"思乡|日暮江边的羁旅愁绪"],
+["过故人庄","孟浩然","唐","故人具鸡黍|邀我至田家|绿树村边合|青山郭外斜|开轩面场圃|把酒话桑麻","wine,village,mountain",1],
+["望洞庭湖赠张丞相","孟浩然","唐","八月湖水平|涵虚混太清|气蒸云梦泽|波撼岳阳城|欲济无舟楫|端居耻圣明","lake,water,boat",2,"言志|借求仕表达自己的从政愿望"],
+["黄鹤楼","崔颢","唐","昔人已乘黄鹤去|此地空余黄鹤楼|黄鹤一去不复返|白云千载空悠悠|晴川历历汉阳树|芳草萋萋鹦鹉洲|日暮乡关何处是|烟波江上使人愁","tower,cloud,river",2,"思乡|登楼怀古的乡愁"],
+["逢雪宿芙蓉山主人","刘长卿","唐","日暮苍山远|天寒白屋贫|柴门闻犬吠|风雪夜归人","snow,night,dog,mountain",1],
+["夜上受降城闻笛","李益","唐","回乐烽前沙似雪|受降城外月如霜|不知何处吹芦管|一夜征人尽望乡","moon,snow,frontier",1,"思乡|笛声引发的集体乡愁"],
+["秋思","张籍","唐","洛阳城里见秋风|欲作家书意万重|复恐匆匆说不尽|行人临发又开封","wind,home,letter",1,"思乡|写家书时千言万语说不尽"],
+["十五夜望月","王建","唐","中庭地白树栖鸦|冷露无声湿桂花|今夜月明人尽望|不知秋思落谁家","moon,osmanthus,night,bird",1,"思乡|中秋望月怀人的普遍乡愁"],
+["马诗","李贺","唐","大漠沙如雪|燕山月似钩|何当金络脑|快走踏清秋","moon,snow,desert,horse",1,"言志|渴望驰骋沙场建功立业"],
+["南园","李贺","唐","男儿何不带吴钩|收取关山五十州|请君暂上凌烟阁|若个书生万户侯","sword,tower",2,"爱国|投笔从戎的报国热情"],
+["金缕衣","杜秋娘","唐","劝君莫惜金缕衣|劝君惜取少年时|花开堪折直须折|莫待无花空折枝","flower",1,"惜时|珍惜光阴、莫负青春"],
+["长歌行","汉乐府","汉","青青园中葵|朝露待日晞|阳春布德泽|万物生光辉|常恐秋节至|焜黄华叶衰|百川东到海|何时复西归|少壮不努力|老大徒伤悲","sun,water,leaf",1,"惜时|年少不努力老来空伤悲"],
+["将进酒","李白","唐","君不见黄河之水天上来|奔流到海不复回|君不见高堂明镜悲白发|朝如青丝暮成雪|人生得意须尽欢|莫使金樽空对月|天生我材必有用|千金散尽还复来","river,wine,moon",2,"言志|豪放自信、蔑视权贵的旷达"],
+["登高","杜甫","唐","风急天高猿啸哀|渚清沙白鸟飞回|无边落木萧萧下|不尽长江滚滚来|万里悲秋常作客|百年多病独登台","wind,leaf,river,monkey",2,"思乡|晚年漂泊的深沉悲愁"],
+["蜀相","杜甫","唐","丞相祠堂何处寻|锦官城外柏森森|映阶碧草自春色|隔叶黄鹂空好音|三顾频烦天下计|两朝开济老臣心|出师未捷身先死|长使英雄泪满襟","grass,bird,temple",2,"咏史|对诸葛亮鞠躬尽瘁的敬仰与惋惜"],
+["琵琶行","白居易","唐","浔阳江头夜送客|枫叶荻花秋瑟瑟|主人下马客在船|举酒欲饮无管弦|醉不成欢惨将别|别时茫茫江浸月|忽闻水上琵琶声|主人忘归客不发","boat,leaf,river,moon",2,"讽喻|天涯沦落人的身世共鸣"],
+["锦瑟","李商隐","唐","锦瑟无端五十弦|一弦一柱思华年|庄生晓梦迷蝴蝶|望帝春心托杜鹃|沧海月明珠有泪|蓝田日暖玉生烟|此情可待成追忆|只是当时已惘然","instrument,sea,moon,butterfly",2,"爱情|对逝去年华的追忆惘然"],
+["虞美人","李煜","五代","春花秋月何时了|往事知多少|小楼昨夜又东风|故国不堪回首月明中|雕栏玉砌应犹在|只是朱颜改|问君能有几多愁|恰似一江春水向东流","flower,moon,river,home",2,"思乡|以春水喻愁的亡国之痛"],
+["念奴娇·赤壁怀古","苏轼","宋","大江东去|浪淘尽|千古风流人物|故垒西边|人道是|三国周郎赤壁|乱石穿空|惊涛拍岸|卷起千堆雪|江山如画|一时多少豪杰|遥想公瑾当年|小乔初嫁了|雄姿英发|羽扇纶巾|谈笑间|樯橹灰飞烟灭|故国神游|多情应笑我|早生华发|人生如梦|一尊还酹江月","river,rock,war",2,"咏史|江山依旧、人生如梦的感慨"],
+["永遇乐·京口北固亭怀古","辛弃疾","宋","千古江山|英雄无觅孙仲谋处|舞榭歌台|风流总被雨打风吹去|斜阳草树|寻常巷陌|人道寄奴曾住|想当年|金戈铁马|气吞万里如虎","sun,grass,war",2,"爱国|借古讽今、壮志难酬的愤懑"],
+["声声慢","李清照","宋","寻寻觅觅|冷冷清清|凄凄惨惨戚戚|乍暖还寒时候|最难将息|三杯两盏淡酒|怎敌他|晚来风急|雁过也|正伤心|却是旧时相识","wine,goose,wind,autumn",2,"思乡|国破家亡后的孤独凄凉"],
+["书愤","陆游","宋","早岁那知世事艰|中原北望气如山|楼船夜雪瓜洲渡|铁马秋风大散关|塞上长城空自许|镜中衰鬓已先斑|出师一表真名世|千载谁堪伯仲间","snow,horse,war,boat",2,"爱国|壮志未酬的悲愤与坚持"],
+["蜀道难","李白","唐","噫吁嚱|危乎高哉|蜀道之难|难于上青天|连峰去天不盈尺|枯松倒挂倚绝壁|飞湍瀑流争喧豗|砯崖转石万壑雷","mountain,pine,water",2,"咏史|蜀道险峻奇绝的惊叹"],
+["梦游天姥吟留别","李白","唐","海客谈瀛洲|烟涛微茫信难求|越人语天姥|云霞明灭或可睹|天姥连天向天横|势拔五岳掩赤城|霓为衣兮风为马|云之君兮纷纷而来下","cloud,mountain,fairy",2,"言志|安能摧眉折腰事权贵的傲骨"],
+["劝学","荀子","先秦","君子曰|学不可以已|青|取之于蓝|而青于蓝|冰|水为之|而寒于水|木直中绳|輮以为轮|其曲中规","blue,ice",2,"惜时|学习可以改变自己提升自己"],
+["逍遥游","庄子","先秦","北冥有鱼|其名为鲲|鲲之大|不知其几千里也|化而为鸟|其名为鹏|鹏之背|不知其几千里也","fish,bird,sea",2,"哲理|追求精神绝对自由"],
+["离骚","屈原","战国","长太息以掩涕兮|哀民生之多艰|路漫漫其修远兮|吾将上下而求索","road",2,"爱国|忧国忧民、上下求索的坚贞"],
+["岳阳楼记","范仲淹","宋","至若春和景明|波澜不惊|上下天光|一碧万顷|沙鸥翔集|锦鳞游泳|岸芷汀兰|郁郁青青|不以物喜|不以己悲","lake,bird,tower",2,"言志|先天下之忧而忧的胸怀"],
+["醉翁亭记","欧阳修","宋","环滁皆山也|其西南诸峰|林壑尤美|望之蔚然而深秀者|琅琊也|醉翁之意不在酒|在乎山水之间也","mountain,pavilion,wine",2,"言志|醉情山水、与民同乐"],
+["赤壁赋","苏轼","宋","壬戌之秋|七月既望|苏子与客泛舟游于赤壁之下|清风徐来|水波不兴|举酒属客|诵明月之诗|歌窈窕之章","boat,moon,river,wind",2,"哲理|寄情山水、人生短暂的超脱"],
+["客至","杜甫","唐","舍南舍北皆春水|但见群鸥日日来|花径不曾缘客扫|蓬门今始为君开|盘飧市远无兼味|樽酒家贫只旧醅","bird,flower,wine",2,"友情|淳朴真挚的待客之情"],
+["闻官军收河南河北","杜甫","唐","剑外忽传收蓟北|初闻涕泪满衣裳|却看妻子愁何在|漫卷诗书喜欲狂|白日放歌须纵酒|青春作伴好还乡","home,wine",2,"爱国|失地收复时欣喜若狂"],
+["登楼","杜甫","唐","花近高楼伤客心|万方多难此登临|锦江春色来天地|玉垒浮云变古今","flower,tower,cloud",2,"爱国|忧国伤时、感怀古今"],
+["旅夜书怀","杜甫","唐","细草微风岸|危樯独夜舟|星垂平野阔|月涌大江流|名岂文章著|官应老病休|飘飘何所似|天地一沙鸥","grass,wind,boat,star,goose",2,"思乡|晚年漂泊的孤独与不平"],
+["登岳阳楼","杜甫","唐","昔闻洞庭水|今上岳阳楼|吴楚东南坼|乾坤日夜浮|亲朋无一字|老病有孤舟","lake,tower,boat",2,"思乡|忧国忧民与身世之悲"],
+["马嵬","李商隐","唐","海外徒闻更九州|他生未卜此生休|空闻虎旅传宵柝|无复鸡人报晓筹|此日六军同驻马|当时七夕笑牵牛|如何四纪为天子|不及卢家有莫愁","war,horse,cow",2,"咏史|对唐玄宗的讽刺与感慨"],
+["嫦娥","李商隐","唐","云母屏风烛影深|长河渐落晓星沉|嫦娥应悔偷灵药|碧海青天夜夜心","star,moon,screen,night",1,"咏史|嫦娥孤居月宫的悔恨与寂寞"],
+["贾生","李商隐","唐","宣室求贤访逐臣|贾生才调更无伦|可怜夜半虚前席|不问苍生问鬼神","temple,night",2,"讽喻|借古讽今，怀才不遇"],
+["登乐游原","李商隐","唐","向晚意不适|驱车登古原|夕阳无限好|只是近黄昏","sun,mountain",1,"哲理|美好事物转瞬消逝的怅惘"],
+["秋夕","杜牧","唐","银烛秋光冷画屏|轻罗小扇扑流萤|天阶夜色凉如水|卧看牵牛织女星","candle,screen,star,night",1],
+["寄扬州韩绰判官","杜牧","唐","青山隐隐水迢迢|秋尽江南草未凋|二十四桥明月夜|玉人何处教吹箫","moon,bridge,mountain",1,"思乡|对江南旧游的怀念"],
+["过华清宫","杜牧","唐","长安回望绣成堆|山顶千门次第开|一骑红尘妃子笑|无人知是荔枝来","horse,fruit,mountain",2,"讽喻|揭露统治者的骄奢淫逸"],
+["凉思","李商隐","唐","客去波平槛|蝉休露满枝|永怀当此节|倚立自移时","insect,water",2,"思乡|秋夜怀人的孤寂"],
+["北青萝","李商隐","唐","残阳西入崦|茅屋访孤僧|落叶人何在|寒云路几层","sun,leaf,cloud,temple",2],
+["风雨","李商隐","唐","凄凉宝剑篇|羁泊欲穷年|黄叶仍风雨|青楼自管弦","rain,leaf",2],
+["端居","李商隐","唐","远书归梦两悠悠|只有空床敌素秋|阶下青苔与红树|雨中寥落月中愁","letter,bed,rain,moon",2,"思乡|独处异乡的寂寞相思"],
+["隋宫","李商隐","唐","紫泉宫殿锁烟霞|欲取芜城作帝家|玉玺不缘归日角|锦帆应是到天涯","tower,mist,boat",2,"讽喻|讽刺隋炀帝的荒淫亡国"],
+["瑶池","李商隐","唐","瑶池阿母绮窗开|黄竹歌声动地哀|八骏日行三万里|穆王何事不重来","horse,music",2,"咏史|求仙虚妄的讽喻"],
+["无题·昨夜星辰","李商隐","唐","昨夜星辰昨夜风|画楼西畔桂堂东|身无彩凤双飞翼|心有灵犀一点通","star,wind,osmanthus",2,"爱情|心心相印却难以相聚"],
+["霜月","李商隐","唐","初闻征雁已无蝉|百尺楼高水接天|青女素娥俱耐冷|月中霜里斗婵娟","goose,moon,frost,tower",2],
+["春雨","李商隐","唐","怅卧新春白袷衣|白门寥落意多违|红楼隔雨相望冷|珠箔飘灯独自归","rain,lamp",2,"爱情|雨中怀人的怅惘"],
+["隋宫·乘兴","李商隐","唐","乘兴南游不戒严|九重谁省谏书函|春风举国裁宫锦|半作障泥半作帆","wind,boat,horse",2],
+["筹笔驿","李商隐","唐","猿鸟犹疑畏简书|风云常为护储胥|徒令上将挥神笔|终见降王走传车","monkey,cloud,war",2,"咏史|诸葛亮功业未成的遗憾"],
+["马嵬其二","李商隐","唐","海外徒闻更九州|他生未卜此生休|空闻虎旅传宵柝|无复鸡人报晓筹",2],
+["楚宫","李商隐","唐","湘波如泪色漻漻|楚厉迷魂逐恨遥|枫树夜猿愁自断|女萝山鬼语相邀","water,monkey,mountain",2],
+["宫词","朱庆馀","唐","寂寂花时闭院门|美人相并立琼轩|含情欲说宫中事|鹦鹉前头不敢言","flower,parrot",2,"讽喻|宫女生活的压抑"],
+["闺意献张水部","朱庆馀","唐","洞房昨夜停红烛|待晓堂前拜舅姑|妆罢低声问夫婿|画眉深浅入时无","candle,makeup",1],
+["将赴吴兴登乐游原","杜牧","唐","清时有味是无能|闲爱孤云静爱僧|欲把一麾江海去|乐游原上望昭陵","cloud,temple,sun",2],
+["遣怀","杜牧","唐","落魄江湖载酒行|楚腰纤细掌中轻|十年一觉扬州梦|赢得青楼薄幸名","wine,moon",2,"讽喻|对早年荒唐生活的悔悟"],
+["赠别","杜牧","唐","娉娉袅袅十三余|豆蔻梢头二月初|春风十里扬州路|卷上珠帘总不如","flower,spring",1,"爱情|赞美心仪女子的美好"],
+["山行·远上","杜牧","唐","远上寒山石径斜|白云深处有人家|停车坐爱枫林晚|霜叶红于二月花","mountain,cloud,leaf",0],
+["遣兴","杜甫","唐","骥子好男儿|前年学语时|问知人客姓|诵得老夫诗","horse,child",2],
+["前出塞","杜甫","唐","挽弓当挽强|用箭当用长|射人先射马|擒贼先擒王","bow,horse,war",2,"哲理|做事要抓关键"],
+["房兵曹胡马","杜甫","唐","胡马大宛名|锋棱瘦骨成|竹批双耳峻|风入四蹄轻","horse,bamboo",2,"言志|借骏马抒写雄心"],
+["画鹰","杜甫","唐","素练风霜起|苍鹰画作殊|身轻一鸟过|目急万夫呼","eagle,bird",2,"言志|借鹰抒发凌云壮志"],
+["月夜忆舍弟","杜甫","唐","戍鼓断人行|边秋一雁声|露从今夜白|月是故乡明|有弟皆分散|无家问死生","moon,goose,war",2,"亲情|战乱中思念分散的兄弟"],
+["天末怀李白","杜甫","唐","凉风起天末|君子意如何|鸿雁几时到|江湖秋水多|文章憎命达|魑魅喜人过","wind,goose,river",2,"友情|对李白命运的牵挂"],
+["奉济驿重送严公","杜甫","唐","远送从此别|青山空复情|几时杯重把|昨夜月同行","mountain,moon,wine",2,"友情|送别严武的惜别之情"],
+["别房太尉墓","杜甫","唐","他乡复行役|驻马别孤坟|近泪无干土|低空有断云","cloud,horse",2,"友情|哭悼亡友的哀伤"],
+["登楼·花近","杜甫","唐","花近高楼伤客心|万方多难此登临|锦江春色来天地|玉垒浮云变古今","flower,tower,cloud",2],
+["阁夜","杜甫","唐","岁暮阴阳催短景|天涯霜雪霁寒宵|五更鼓角声悲壮|三峡星河影动摇","snow,night,star",2,"思乡|岁末天涯的悲凉"],
+["咏怀古迹","杜甫","唐","群山万壑赴荆门|生长明妃尚有村|一去紫台连朔漠|独留青冢向黄昏|画图省识春风面|环珮空归夜月魂","mountain,moon,frontier",2,"咏史|王昭君身世的同情"],
+["江村","杜甫","唐","清江一曲抱村流|长夏江村事事幽|自去自来梁上燕|相亲相近水中鸥","river,bird,village",1],
+["狂夫","杜甫","唐","万里桥西一草堂|百花潭水即沧浪|风含翠篠娟娟净|雨裛红蕖冉冉香","rain,flower,bamboo",2],
+["后游","杜甫","唐","寺忆新游处|桥怜再渡时|江山如有待|花柳更无私","temple,bridge,flower",2],
+["秋登宣城谢朓北楼","李白","唐","江城如画里|山晚望晴空|两水夹明镜|双桥落彩虹|人烟寒橘柚|秋色老梧桐","tower,mountain,rainbow",1],
+["塞下曲·五月","李白","唐","五月天山雪|无花只有寒|笛中闻折柳|春色未曾看|晓战随金鼓|宵眠抱玉鞍|愿将腰下剑|直为斩楼兰","snow,frontier,sword",1,"边塞|戍边将士的豪情壮志"],
+["子夜吴歌","李白","唐","长安一片月|万户捣衣声|秋风吹不尽|总是玉关情","moon,wind,wash",1,"思乡|秋夜捣衣声中的思夫之情"],
+["列女操","孟郊","唐","梧桐相待老|鸳鸯会双死|贞妇贵殉夫|舍生亦如此","wutong,bird",2,"言志|歌颂贞烈的节操"],
+["游子引","孟郊","唐","萱草生堂阶|游子行天涯|慈亲倚堂门|不见萱草花","flower,home",2,"亲情|母亲倚门盼儿归"],
+["秋怀","孟郊","唐","孤骨夜难卧|吟虫相唧唧|老泣无涕洟|秋露为滴沥","insect,autumn",2],
+["古怨别","孟郊","唐","飒飒秋风生|愁人怨离别|含情两相向|欲语气先咽","wind,autumn",2,"爱情|离别时欲语泪先的深情"],
+["洛桥晚望","孟郊","唐","天津桥下冰初结|洛阳陌上人行绝|榆柳萧疏楼阁闲|月明直见嵩山雪","bridge,snow,moon,mountain",1],
+["溪居","柳宗元","唐","久为簪组累|幸此南夷谪|闲依农圃邻|偶似山林客","field,mountain",1],
+["渔翁","柳宗元","唐","渔翁夜傍西岩宿|晓汲清湘燃楚竹|烟销日出不见人|欸乃一声山水绿","fisherman,water,bamboo,sun",1],
+["重别梦得","柳宗元","唐","二十年来万事同|今朝岐路忽西东|皇恩若许归田去|晚岁当为邻舍翁","road,home",2,"友情|患难与共的知己离别"],
+["晨诣超师院读禅经","柳宗元","唐","汲井漱寒齿|清心拂尘服|闲持贝叶书|步出东斋读","book,well",2],
+["溪兴","杜荀鹤","唐","山雨溪风卷钓丝|瓦瓯篷底独斟时|醉来睡着无人唤|流下前滩也不知","rain,boat,fisherman",1],
+["春宫怨","杜荀鹤","唐","早被婵娟误|欲妆临镜慵|承恩不在貌|教妾若为容|风暖鸟声碎|日高花影重","bird,flower,mirror",2,"讽喻|宫女空有美貌却不得宠"],
+["小松","杜荀鹤","唐","自小刺头深草里|而今渐觉出蓬蒿|时人不识凌云木|直待凌云始道高","pine,grass",1,"哲理|人才需要时间和眼光来发现"],
+["泾溪","杜荀鹤","唐","泾溪石险人兢慎|终岁不闻倾覆人|却是平流无石处|时时闻说有沉沦","water,boat",2,"哲理|险处谨慎反而平安"],
+["再经胡城县","杜荀鹤","唐","去岁曾经此县城|县民无口不冤声|今来县宰加朱绂|便是生灵血染成","blood,government",2,"讽喻|揭露官吏的残忍"],
+["己亥岁","曹松","唐","泽国江山入战图|生民何计乐樵苏|凭君莫话封侯事|一将功成万骨枯","war,bone",2,"讽喻|战争背后是无数百姓白骨"],
+["南海旅次","曹松","唐","忆归休上越王台|愁思临高不易裁|为客正当无雁处|故园谁道有书来","tower,goose,letter",2,"思乡|滞留异乡盼家书的愁苦"],
+["中秋月","晏殊","宋","十轮霜影转庭梧|此夕羁人独向隅|未必素娥无怅恨|玉蟾清冷桂花孤","moon,osmanthus,night",2,"思乡|中秋独在异乡的孤清"],
+["寓意","晏殊","宋","油壁香车不再逢|峡云无迹任西东|梨花院落溶溶月|柳絮池塘淡淡风","moon,flower,willow",2,"爱情|对逝去恋情的追忆"],
+["山亭夏日","高骈","唐","绿树阴浓夏日长|楼台倒影入池塘|水晶帘动微风起|满架蔷薇一院香","flower,wind,pavilion",1],
+["对雪","高骈","唐","六出飞花入户时|坐看青竹变琼枝|如今好上高楼望|盖尽人间恶路岐","snow,bamboo,tower",1],
+["别董大二首其一","高适","唐","十里黄云白日曛|北风吹雁雪纷纷|莫愁前路无知己|天下谁人不识君","cloud,snow,goose",1],
+["除夜作","高适","唐","旅馆寒灯独不眠|客心何事转凄然|故乡今夜思千里|霜鬓明朝又一年","lamp,night,home",1,"思乡|除夕夜独在旅馆的思乡"],
+["塞上听吹笛","高适","唐","雪净胡天牧马还|月明羌笛戍楼间|借问梅花何处落|风吹一夜满关山","moon,snow,flute,frontier",1,"边塞|笛声中的思乡之情"],
+["营州歌","高适","唐","营州少年厌原野|狐裘蒙茸猎城下|虏酒千钟不醉人|胡儿十岁能骑马","horse,wine",1,"边塞|边地少年的豪放"],
+["江南曲","李益","唐","嫁得瞿塘贾|朝朝误妾期|早知潮有信|嫁与弄潮儿","river,water",1,"爱情|商人妇的埋怨"],
+["喜见外弟又言别","李益","唐","十年离乱后|长大一相逢|问姓惊初见|称名忆旧容","war,reunion",1,"亲情|乱世后亲人重逢"],
+["行舟","李益","唐","柳花飞入正行舟|卧引菱花信碧流|闻道风光满扬子|天晴共上望乡楼","willow,flower,boat",1,"思乡|行舟中的思乡之情"],
+["上汝州郡楼","李益","唐","黄昏鼓角似边州|三十年前上此楼|今日山川对垂泪|伤心不独为悲秋","tower,sunset,war",2],
+["写情","李益","唐","水纹珍簟思悠悠|千里佳期一夕休|从此无心爱良夜|任他明月下西楼","moon,bed",1,"爱情|失约后的失落"],
+["夜雨寄北","李商隐","唐","君问归期未有期|巴山夜雨涨秋池|何当共剪西窗烛|却话巴山夜雨时","rain,night,lamp",1,"思乡|巴山夜雨思念远方亲友"]
+];
+
+/* ================= 意象绘制 ================= */
+function drawPoem(canvas, tags, seed){
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  let s = seed || 1;
+  const rnd = ()=> (s = (s*9301+49297)%233280) / 233280;
+  // 宣纸底
+  ctx.fillStyle = '#f2ecdc'; ctx.fillRect(0,0,W,H);
+  for(let i=0;i<900;i++){
+    ctx.fillStyle = `rgba(140,120,80,${rnd()*0.05})`;
+    ctx.fillRect(rnd()*W, rnd()*H, 1.4, 1.4);
+  }
+  // 远山底
+  ctx.fillStyle = 'rgba(90,90,88,0.13)';
+  ctx.beginPath(); ctx.moveTo(0,H*0.62);
+  for(let x=0;x<=W;x+=20) ctx.lineTo(x, H*0.62 - Math.sin(x*0.011+2)*26 - rnd()*8);
+  ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.fill();
+
+  const ink = a => `rgba(40,40,38,${a})`;
+  tags.forEach(tag=>{
+    ctx.save();
+    ctx.strokeStyle = ink(0.75); ctx.fillStyle = ink(0.75); ctx.lineWidth = 2.4; ctx.lineCap='round';
+    switch(tag){
+      case 'moon': case 'moon2': {
+        const mx=W*0.72, my=H*0.24, r=44;
+        const g=ctx.createRadialGradient(mx,my,r*0.4,mx,my,r*2.6);
+        g.addColorStop(0,'rgba(250,246,230,0.95)'); g.addColorStop(0.5,'rgba(240,232,205,0.35)'); g.addColorStop(1,'rgba(240,232,205,0)');
+        ctx.fillStyle=g; ctx.beginPath(); ctx.arc(mx,my,r*2.6,0,7); ctx.fill();
+        ctx.fillStyle='#f6efdc'; ctx.beginPath(); ctx.arc(mx,my,r,0,7); ctx.fill();
+        break; }
+      case 'sun': case 'sunset': {
+        ctx.fillStyle='rgba(179,56,44,0.8)';
+        ctx.beginPath(); ctx.arc(W*0.7,H*0.3,30,0,7); ctx.fill();
+        ctx.strokeStyle='rgba(179,56,44,0.35)'; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.arc(W*0.7,H*0.3,42,0,7); ctx.stroke();
+        break; }
+      case 'mountain': {
+        ctx.fillStyle=ink(0.32); ctx.beginPath(); ctx.moveTo(0,H*0.78);
+        for(let x=0;x<=W;x+=16) ctx.lineTo(x, H*0.78 - Math.abs(Math.sin(x*0.017))*58 - rnd()*14);
+        ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.fill(); break; }
+      case 'water': case 'river': case 'lake': case 'sea': {
+        ctx.strokeStyle=ink(0.5); ctx.lineWidth=2;
+        for(let r=0;r<5;r++){ const y=H*(0.74+r*0.05);
+          ctx.beginPath();
+          for(let x=0;x<=W;x+=14) ctx.lineTo(x, y + Math.sin(x*0.05+r)*3.2);
+          ctx.stroke(); } break; }
+      case 'boat': {
+        const bx=W*0.32, by=H*0.78;
+        ctx.beginPath(); ctx.moveTo(bx-52,by); ctx.quadraticCurveTo(bx,by+26,bx+52,by);
+        ctx.quadraticCurveTo(bx+38,by-8,bx-30,by-8); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(bx,by-8); ctx.lineTo(bx,by-66);
+        ctx.quadraticCurveTo(bx+26,by-52,bx+22,by-16); ctx.stroke(); break; }
+      case 'willow': {
+        const wx=W*0.16;
+        ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(wx,H*0.32); ctx.quadraticCurveTo(wx-8,H*0.52,wx-4,H*0.66); ctx.stroke();
+        ctx.lineWidth=1.6; ctx.strokeStyle=ink(0.55);
+        for(let i=0;i<16;i++){ const dx=(rnd()-0.3)*66;
+          ctx.beginPath(); ctx.moveTo(wx+dx*0.3,H*0.36);
+          ctx.quadraticCurveTo(wx+dx,H*0.5, wx+dx*1.15, H*(0.6+rnd()*0.16)); ctx.stroke(); } break; }
+      case 'pavilion': case 'tower': {
+        const px=W*0.24, py=H*0.52;
+        ctx.lineWidth=4; ctx.beginPath();
+        ctx.moveTo(px-46,py); ctx.lineTo(px+46,py);
+        ctx.moveTo(px-30,py); ctx.lineTo(px-30,py-40); ctx.moveTo(px+30,py); ctx.lineTo(px+30,py-40);
+        ctx.moveTo(px-42,py-40); ctx.lineTo(px+42,py-40); ctx.stroke();
+        ctx.lineWidth=5; ctx.beginPath();
+        ctx.moveTo(px-56,py-40); ctx.quadraticCurveTo(px,py-62,px+56,py-40); ctx.stroke();
+        ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(px,py-58); ctx.lineTo(px,py-76); ctx.stroke(); break; }
+      case 'snow': {
+        ctx.fillStyle='rgba(250,248,240,0.9)';
+        for(let i=0;i<130;i++){ const r=rnd()*2.4+0.7; ctx.beginPath(); ctx.arc(rnd()*W,rnd()*H*0.85,r,0,7); ctx.fill(); }
+        ctx.fillStyle=ink(0.13); ctx.fillRect(0,H*0.82,W,H*0.18); break; }
+      case 'goose': {
+        ctx.strokeStyle=ink(0.72); ctx.lineWidth=2.4;
+        for(let i=0;i<5;i++){ const gx=W*(0.5+i*0.09), gy=H*(0.2+i*0.045)-20;
+          ctx.beginPath(); ctx.moveTo(gx-8,gy); ctx.quadraticCurveTo(gx-3,gy-7,gx,gy);
+          ctx.quadraticCurveTo(gx+3,gy-7,gx+8,gy); ctx.stroke(); } break; }
+      case 'flower': case 'lotus': case 'plum': case 'chrysanthemum': case 'osmanthus': {
+        for(let i=0;i<7;i++){ const fx=W*(0.14+rnd()*0.7), fy=H*(0.56+rnd()*0.26);
+          ctx.fillStyle='rgba(179,56,44,0.75)';
+          for(let p=0;p<5;p++){ const a=p/5*Math.PI*2+rnd();
+            ctx.beginPath(); ctx.arc(fx+Math.cos(a)*5.5, fy+Math.sin(a)*5.5, 3.6,0,7); ctx.fill(); }
+          ctx.fillStyle='#e8ddc2'; ctx.beginPath(); ctx.arc(fx,fy,2.6,0,7); ctx.fill(); } break; }
+      case 'leaf': {
+        ctx.fillStyle='rgba(179,56,44,0.65)';
+        for(let i=0;i<12;i++){ const lx=rnd()*W, ly=H*(0.3+rnd()*0.5);
+          ctx.save(); ctx.translate(lx,ly); ctx.rotate(rnd()*6.3);
+          ctx.beginPath(); ctx.ellipse(0,0,8,3.4,0,0,7); ctx.fill(); ctx.restore(); } break; }
+      case 'bamboo': {
+        const bx2=W*0.85;
+        ctx.lineWidth=6; ctx.strokeStyle=ink(0.6);
+        ctx.beginPath(); ctx.moveTo(bx2,H*0.16); ctx.quadraticCurveTo(bx2-6,H*0.5,bx2-2,H*0.86); ctx.stroke();
+        ctx.lineWidth=1.6;
+        for(let i=0;i<4;i++){ const yy=H*(0.26+i*0.16);
+          ctx.beginPath(); ctx.moveTo(bx2-5,yy); ctx.lineTo(bx2+3,yy); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(bx2-2,yy); ctx.quadraticCurveTo(bx2-32,yy-8,bx2-40,yy-20); ctx.stroke(); } break; }
+      case 'pine': {
+        const tx=W*0.8;
+        ctx.lineWidth=7; ctx.beginPath(); ctx.moveTo(tx,H*0.4); ctx.lineTo(tx-6,H*0.88); ctx.stroke();
+        ctx.lineWidth=3;
+        for(let i=0;i<4;i++){ const yy=H*(0.34+i*0.11), dir=i%2?1:-1;
+          ctx.beginPath(); ctx.moveTo(tx-3,yy); ctx.quadraticCurveTo(tx+dir*34,yy-12,tx+dir*54,yy-22); ctx.stroke(); } break; }
+      case 'rain': {
+        ctx.strokeStyle='rgba(70,80,95,0.4)'; ctx.lineWidth=1.4;
+        for(let i=0;i<46;i++){ const rx=rnd()*W, ry=rnd()*H*0.8;
+          ctx.beginPath(); ctx.moveTo(rx,ry); ctx.lineTo(rx-5,ry+22); ctx.stroke(); } break; }
+      case 'wind': {
+        ctx.strokeStyle=ink(0.35); ctx.lineWidth=2.2;
+        for(let i=0;i<4;i++){ const wy=H*(0.3+i*0.14);
+          ctx.beginPath(); ctx.moveTo(W*0.12,wy);
+          ctx.bezierCurveTo(W*0.34,wy-16,W*0.5,wy+16,W*0.72,wy-6);
+          ctx.stroke(); } break; }
+      case 'cloud': case 'mist': {
+        ctx.strokeStyle='rgba(100,100,96,0.35)'; ctx.lineWidth=3;
+        for(let i=0;i<3;i++){ const cy=H*(0.2+i*0.14), cx=W*(0.2+rnd()*0.5);
+          ctx.beginPath(); ctx.moveTo(cx,cy);
+          ctx.bezierCurveTo(cx+40,cy-14,cx+90,cy+10,cx+150,cy-4);
+          ctx.stroke(); } break; }
+      case 'bird': case 'eagle': {
+        ctx.strokeStyle=ink(0.7); ctx.lineWidth=2.4;
+        for(let i=0;i<3;i++){ const bx3=W*(0.24+rnd()*0.5), by3=H*(0.2+rnd()*0.2);
+          ctx.beginPath(); ctx.moveTo(bx3-10,by3); ctx.quadraticCurveTo(bx3-3,by3-8,bx3,by3);
+          ctx.quadraticCurveTo(bx3+3,by3-8,bx3+10,by3); ctx.stroke(); } break; }
+      case 'bridge': {
+        const brx=W*0.55, bry=H*0.72;
+        ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(brx-76,bry);
+        ctx.quadraticCurveTo(brx,bry-48,brx+76,bry); ctx.stroke();
+        ctx.lineWidth=2.4;
+        for(let i=-3;i<=3;i++){ ctx.beginPath(); ctx.moveTo(brx+i*20,bry-6-Math.cos(i/3.4)*0); ctx.lineTo(brx+i*20,bry-26+Math.abs(i)*3); ctx.stroke(); } break; }
+      case 'fisherman': {
+        const fx=W*0.3, fy=H*0.8;
+        ctx.beginPath(); ctx.moveTo(fx-30,fy); ctx.quadraticCurveTo(fx,fy+14,fx+30,fy); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.arc(fx+6,fy-24,7,0,7); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(fx+2,fy-16); ctx.lineTo(fx-4,fy-2); ctx.stroke();
+        ctx.lineWidth=1.8; ctx.beginPath(); ctx.moveTo(fx-4,fy-30); ctx.lineTo(fx-38,fy-4); ctx.stroke(); break; }
+      case 'star': {
+        ctx.fillStyle=ink(0.55);
+        for(let i=0;i<16;i++){ ctx.beginPath(); ctx.arc(rnd()*W,rnd()*H*0.5,1.6,0,7); ctx.fill(); } break; }
+      case 'lamp': case 'candle': {
+        const lx=W*0.2, ly=H*0.6;
+        const g=ctx.createRadialGradient(lx,ly,4,lx,ly,60);
+        g.addColorStop(0,'rgba(232,176,60,0.55)'); g.addColorStop(1,'rgba(232,176,60,0)');
+        ctx.fillStyle=g; ctx.beginPath(); ctx.arc(lx,ly,60,0,7); ctx.fill();
+        ctx.fillStyle='#f3d488'; ctx.fillRect(lx-5,ly-18,10,22);
+        ctx.strokeStyle=ink(0.7); ctx.lineWidth=2; ctx.strokeRect(lx-9,ly+4,18,8); break; }
+      case 'wine': {
+        const wx=W*0.76, wy=H*0.68;
+        ctx.lineWidth=3; ctx.beginPath();
+        ctx.moveTo(wx-12,wy+22); ctx.lineTo(wx-12,wy-6);
+        ctx.quadraticCurveTo(wx-18,wy-16,wx-10,wy-24);
+        ctx.lineTo(wx+10,wy-24); ctx.quadraticCurveTo(wx+18,wy-16,wx+12,wy-6);
+        ctx.lineTo(wx+12,wy+22); ctx.closePath(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(wx-8,wy-10); ctx.quadraticCurveTo(wx,wy-4,wx+8,wy-10); ctx.stroke(); break; }
+      case 'grass': {
+        ctx.strokeStyle=ink(0.5); ctx.lineWidth=1.8;
+        for(let i=0;i<26;i++){ const gx=rnd()*W, gy=H*(0.82+rnd()*0.14);
+          ctx.beginPath(); ctx.moveTo(gx,gy); ctx.quadraticCurveTo(gx+4,gy-14,gx+(rnd()-0.5)*12,gy-22); ctx.stroke(); } break; }
+      case 'horse': {
+        const hx=W*0.6, hy=H*0.66;
+        ctx.lineWidth=4; ctx.beginPath();
+        ctx.moveTo(hx-34,hy); ctx.quadraticCurveTo(hx-20,hy-26,hx+4,hy-20);
+        ctx.lineTo(hx+30,hy-26); ctx.stroke();
+        ctx.lineWidth=3;
+        ctx.beginPath(); ctx.moveTo(hx-22,hy-4); ctx.lineTo(hx-26,hy+26); ctx.moveTo(hx+14,hy-6); ctx.lineTo(hx+12,hy+26); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(hx+30,hy-26); ctx.quadraticCurveTo(hx+44,hy-34,hx+42,hy-44); ctx.stroke();
+        ctx.beginPath(); ctx.arc(hx+42,hy-48,6,0,7); ctx.stroke(); break; }
+      case 'child': {
+        const cx=W*0.4, cy=H*0.62;
+        ctx.beginPath(); ctx.arc(cx,cy-14,8,0,7); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(cx,cy-4); ctx.lineTo(cx,cy+18); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx,cy+18); ctx.lineTo(cx-8,cy+34); ctx.moveTo(cx,cy+18); ctx.lineTo(cx+8,cy+34); ctx.stroke(); break; }
+      case 'kite': {
+        ctx.strokeStyle=ink(0.5); ctx.lineWidth=1.6;
+        const kx=W*0.7, ky=H*0.26;
+        ctx.beginPath(); ctx.moveTo(kx-14,ky); ctx.lineTo(kx,ky-12); ctx.lineTo(kx+14,ky); ctx.lineTo(kx,ky+12); ctx.closePath(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(kx,ky+12); ctx.quadraticCurveTo(kx-16,ky+40,kx-30,ky+58); ctx.stroke(); break; }
+      case 'monkey': {
+        const mx=W*0.68, my=H*0.6;
+        ctx.beginPath(); ctx.arc(mx,my-10,9,0,7); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(mx,my); ctx.quadraticCurveTo(mx-6,my+18,mx-2,my+30); ctx.stroke(); break; }
+      case 'snow2': break;
+      case 'frost': {
+        ctx.strokeStyle='rgba(150,160,175,0.5)'; ctx.lineWidth=1.4;
+        for(let i=0;i<10;i++){ const fx2=rnd()*W, fy2=H*(0.6+rnd()*0.3);
+          for(let a=0;a<3;a++){ ctx.beginPath(); ctx.moveTo(fx2,fy2);
+            ctx.lineTo(fx2+Math.cos(a*2.1)*10, fy2+Math.sin(a*2.1)*10); ctx.stroke(); } } break; }
+      case 'screen': {
+        const sx=W*0.78, sy=H*0.5;
+        ctx.lineWidth=3; ctx.strokeRect(sx-40,sy-34,80,68);
+        ctx.beginPath(); ctx.moveTo(sx-40,sy); ctx.lineTo(sx+40,sy); ctx.stroke(); break; }
+      case 'sword': case 'bow': {
+        const swx=W*0.6, swy=H*0.5;
+        ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(swx-40,swy+30); ctx.lineTo(swx+40,swy-30); ctx.stroke();
+        ctx.lineWidth=6; ctx.beginPath(); ctx.moveTo(swx-14,swy+2); ctx.lineTo(swx-26,swy+14); ctx.stroke(); break; }
+      case 'butterfly': {
+        ctx.fillStyle='rgba(179,56,44,0.7)';
+        for(let i=0;i<4;i++){ const bx4=W*(0.2+rnd()*0.6), by4=H*(0.25+rnd()*0.3);
+          ctx.beginPath(); ctx.ellipse(bx4-4,by4,5,3,0.6,0,7); ctx.fill();
+          ctx.beginPath(); ctx.ellipse(bx4+4,by4,5,3,-0.6,0,7); ctx.fill(); } break; }
+      case 'flute': case 'music': {
+        const mx=W*0.6, my=H*0.36;
+        ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(mx-30,my+10); ctx.lineTo(mx+30,my-10); ctx.stroke();
+        ctx.lineWidth=1.6;
+        for(let i=-2;i<=2;i++){ ctx.beginPath(); ctx.arc(mx+i*12,my-i*4,2,0,7); ctx.stroke(); } break; }
+      case 'bed': {
+        const bx=W*0.3, by=H*0.7;
+        ctx.lineWidth=4; ctx.strokeRect(bx-40,by,80,22);
+        ctx.beginPath(); ctx.moveTo(bx-40,by); ctx.lineTo(bx-40,by-22); ctx.moveTo(bx+40,by); ctx.lineTo(bx+40,by-22); ctx.stroke(); break; }
+      case 'letter': {
+        const lx=W*0.68, ly=H*0.6;
+        ctx.lineWidth=2.4; ctx.strokeRect(lx-24,ly-16,48,32);
+        ctx.beginPath(); ctx.moveTo(lx-24,ly-16); ctx.lineTo(lx,ly+4); ctx.lineTo(lx+24,ly-16); ctx.stroke(); break; }
+      case 'horse2': break;
+      case 'home': {
+        const hx=W*0.24, hy=H*0.58;
+        ctx.lineWidth=3.4;
+        ctx.beginPath(); ctx.moveTo(hx-34,hy); ctx.lineTo(hx-34,hy+30); ctx.moveTo(hx+34,hy); ctx.lineTo(hx+34,hy+30); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(hx-48,hy); ctx.lineTo(hx,hy-32); ctx.lineTo(hx+48,hy); ctx.stroke(); break; }
+      case 'war': {
+        ctx.strokeStyle=ink(0.4); ctx.lineWidth=3;
+        for(let i=0;i<5;i++){ const wx=W*(0.2+rnd()*0.6), wy=H*(0.6+rnd()*0.2);
+          ctx.beginPath(); ctx.moveTo(wx,wy); ctx.lineTo(wx,wy-46); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(wx,wy-46); ctx.lineTo(wx+16,wy-42); ctx.stroke(); } break; }
+      case 'frontier': {
+        ctx.strokeStyle=ink(0.45); ctx.lineWidth=3;
+        const fx3=W*0.5, fy3=H*0.6;
+        for(let i=-2;i<=2;i++){ ctx.beginPath(); ctx.moveTo(fx3+i*56,fy3+40);
+          ctx.lineTo(fx3+i*56,fy3-30); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(fx3+i*56,fy3-30); ctx.lineTo(fx3+i*56+18,fy3-24); ctx.stroke(); }
+        ctx.fillStyle=ink(0.35); ctx.beginPath(); ctx.moveTo(0,fy3+40);
+        for(let x=0;x<=W;x+=24) ctx.lineTo(x,fy3+40-Math.abs(Math.sin(x*0.02))*30);
+        ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.fill(); break; }
+      case 'field': {
+        ctx.strokeStyle=ink(0.4); ctx.lineWidth=1.8;
+        for(let i=0;i<8;i++){ const fy2=H*(0.7+i*0.035);
+          ctx.beginPath(); ctx.moveTo(0,fy2); ctx.lineTo(W,fy2-Math.sin(i)*8); ctx.stroke(); } break; }
+      case 'temple': {
+        const tx=W*0.78, ty=H*0.56;
+        ctx.lineWidth=4;
+        ctx.strokeRect(tx-24,ty-10,48,40);
+        ctx.beginPath(); ctx.moveTo(tx-36,ty-10); ctx.quadraticCurveTo(tx,ty-36,tx+36,ty-10); ctx.stroke();
+        ctx.beginPath(); ctx.arc(tx,ty+8,7,0,7); ctx.stroke(); break; }
+      case 'village': {
+        for(let i=0;i<3;i++){ const vx=W*(0.16+i*0.3), vy=H*(0.62+(i%2)*0.08);
+          ctx.lineWidth=2.6; ctx.beginPath(); ctx.moveTo(vx-20,vy); ctx.lineTo(vx-20,vy+20);
+          ctx.moveTo(vx+20,vy); ctx.lineTo(vx+20,vy+20);
+          ctx.moveTo(vx-28,vy); ctx.lineTo(vx,vy-18); ctx.lineTo(vx+28,vy); ctx.stroke(); } break; }
+      case 'dog': {
+        const dx=W*0.7, dy=H*0.74;
+        ctx.lineWidth=3.6; ctx.beginPath();
+        ctx.moveTo(dx-18,dy); ctx.quadraticCurveTo(dx-8,dy-16,dx+8,dy-10); ctx.lineTo(dx+18,dy-8); ctx.stroke();
+        ctx.beginPath(); ctx.arc(dx+20,dy-12,6,0,7); ctx.fill();
+        ctx.lineWidth=2.6; ctx.beginPath();
+        ctx.moveTo(dx-10,dy-2); ctx.lineTo(dx-12,dy+14); ctx.moveTo(dx+8,dy-4); ctx.lineTo(dx+8,dy+12); ctx.stroke(); break; }
+      case 'fish': {
+        ctx.strokeStyle=ink(0.55); ctx.lineWidth=2.2;
+        for(let i=0;i<4;i++){ const fx4=W*(0.2+rnd()*0.6), fy4=H*(0.7+rnd()*0.14);
+          ctx.beginPath(); ctx.moveTo(fx4-10,fy4);
+          ctx.quadraticCurveTo(fx4,fy4-7,fx4+10,fy4);
+          ctx.quadraticCurveTo(fx4,fy4+7,fx4-10,fy4); ctx.stroke(); } break; }
+      case 'dragonfly': case 'insect': {
+        ctx.strokeStyle=ink(0.55); ctx.lineWidth=1.8;
+        for(let i=0;i<5;i++){ const ix=W*(0.15+rnd()*0.7), iy=H*(0.3+rnd()*0.35);
+          ctx.beginPath(); ctx.moveTo(ix,iy); ctx.lineTo(ix+(rnd()-0.5)*10,iy-14); ctx.stroke();
+          ctx.beginPath(); ctx.arc(ix,iy-14,3,0,7); ctx.stroke(); } break; }
+      case 'parrot': case 'bee': case 'bird2': {
+        const px=W*0.72, py=H*0.4;
+        ctx.beginPath(); ctx.ellipse(px,py,12,8,0.4,0,7); ctx.fill();
+        ctx.beginPath(); ctx.arc(px+10,py-8,5,0,7); ctx.fill(); break; }
+      case 'reunion': case 'road': case 'blue': case 'ice': case 'bean': case 'ink': case 'grain': case 'sheep': case 'grass2': case 'makeup': case 'fairy': case 'rainbow': case 'wash': case 'rock': case 'bone': case 'blood': case 'government': case 'reed': case 'autumn': case 'spring': break;
+    }
+    ctx.restore();
+  });
+  // 朱砂印章
+  const sx2=W-86, sy2=H-64;
+  ctx.fillStyle='rgba(179,56,44,0.88)';
+  ctx.beginPath();
+  if(ctx.roundRect) ctx.roundRect(sx2,sy2,56,56,8); else ctx.rect(sx2,sy2,56,56);
+  ctx.fill();
+  ctx.fillStyle='#fdf6e6'; ctx.font='28px KaiTi,STKaiti,serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('诗', sx2+28, sy2+18);
+  ctx.font='20px KaiTi,STKaiti,serif';
+  ctx.fillText('词', sx2+28, sy2+42);
+}
+
+/* ================= 状态与存档 ================= */
+const SAVE_KEY='scpoetry_v1';
+const DAY_MS=86400000, START_HOLIDAY='2026-10-01';
+const TOTAL_RESCUES=3;
+let S=load();
+function load(){
+  try{ const d=JSON.parse(localStorage.getItem(SAVE_KEY)); if(d&&d.usage) return d; }catch(e){}
+  return {score:0,passed:[],usage:{},rescues:0,firstDay:null};
+}
+function save(){ try{ localStorage.setItem(SAVE_KEY,JSON.stringify(S)); }catch(e){} }
+function holidayDay(){
+  // 以国庆假期开始日为第1天；首次游玩若晚于10-1，则以首次游玩日为第1天
+  const holStart=new Date(START_HOLIDAY+'T00:00:00').getTime();
+  const today=new Date(); today.setHours(0,0,0,0);
+  if(today>=holStart){
+    if(!S.firstDay) { S.firstDay=START_HOLIDAY; save(); }
+    return Math.min(7, Math.floor((today-holStart)/DAY_MS)+1);
+  }
+  if(!S.firstDay){ S.firstDay='2026-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0'); save(); }
+  const fd=new Date(S.firstDay+'T00:00:00').getTime();
+  return Math.max(1,Math.min(7,Math.floor((today-fd)/DAY_MS)+1));
+}
+function rankOf(score){
+  if(score>=1000) return '状元';
+  if(score>=600) return '进士';
+  if(score>=300) return '举人';
+  if(score>=100) return '秀才';
+  return '童生';
+}
+
+/* ================= 口令编解码 ================= */
+const CKEY='shici2026gj';
+function encStr(obj){
+  let s=encodeURIComponent(JSON.stringify(obj));
+  let out='';
+  for(let i=0;i<s.length;i++){
+    out+=String.fromCharCode((s.charCodeAt(i)+CKEY.charCodeAt(i%CKEY.length))%128);
+  }
+  return btoa(out).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function decStr(str){
+  str=str.replace(/-/g,'+').replace(/_/g,'/');
+  while(str.length%4) str+='=';
+  const b=atob(str);
+  let out='';
+  for(let i=0;i<b.length;i++){
+    out+=String.fromCharCode((b.charCodeAt(i)-CKEY.charCodeAt(i%CKEY.length)+128)%128);
+  }
+  return JSON.parse(decodeURIComponent(out));
+}
+function makeRescue(qid){
+  return 'RC1.'+encStr({q:qid,e:Date.now()+86400000,n:Math.floor(Math.random()*99999)});
+}
+function makeReceipt(qid){
+  return 'RT1.'+encStr({q:qid,ok:1,t:Date.now()});
+}
+
+/* ================= 题库索引 ================= */
+const POEM_MAP = {};
+POEMS.forEach((p,i)=>{ POEM_MAP[i]=p; });
+
+function pickPoem(lv, avoidIds){
+  // 优先级：usage<2 → usage<3 → 任意
+  let pool = POEMS.map((p,i)=>i).filter(i=>{
+    if(avoidIds&&avoidIds.has(i)) return false;
+    const u=S.usage[i]||0;
+    return lv==null ? u<2 : (POEMS[i][5]===lv && u<2);
+  });
+  if(!pool.length){
+    pool = POEMS.map((p,i)=>i).filter(i=> !(avoidIds&&avoidIds.has(i)) && (S.usage[i]||0)<3 && (lv==null||POEMS[i][5]===lv));
+  }
+  if(!pool.length){
+    pool = POEMS.map((p,i)=>i).filter(i=> !(avoidIds&&avoidIds.has(i)));
+  }
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function bumpUsage(i){ S.usage[i]=(S.usage[i]||0)+1; save(); }
+
+/* ================= 出题器 ================= */
+function makePairQ(poemIdx, askTop){
+  const p=POEMS[poemIdx];
+  const lines=p[3].split('|');
+  let pairs=[];
+  for(let i=0;i<lines.length-1;i+=2) pairs.push([lines[i],lines[i+1]]);
+  if(pairs.length===0) pairs=[[lines[0],lines[1]||lines[0]]];
+  const pr=pairs[Math.floor(Math.random()*pairs.length)];
+  const top=pr[0], bottom=pr[1];
+  // 干扰项：其他诗的下句/上句
+  const distract=new Set();
+  let guard=0;
+  while(distract.size<3 && guard++<200){
+    const di=pickPoem(null,new Set([poemIdx]));
+    const dl=POEMS[di][3].split('|');
+    const cand=askTop?dl[1]||dl[0]:dl[0];
+    if(cand && cand.length>=bottom.length*0.5 && cand!==top && cand!==bottom) distract.add(cand);
+  }
+  while(distract.size<3) distract.add(['春风又绿江南岸','明月何时照我还','疑是地上霜'][distract.size]);
+  const opts=[...distract];
+  opts.splice(Math.floor(Math.random()*4),0, askTop?bottom:top);
+  return {
+    type: askTop?'top2bottom':'bottom2top',
+    typeLabel: askTop?'上句接下句':'下句接上句',
+    text: askTop? top : bottom,
+    sub: askTop?'请接下句':'请接上句',
+    opts, answer: askTop?bottom:top, poem: poemIdx
+  };
+}
+function makeAuthorQ(poemIdx){
+  const p=POEMS[poemIdx];
+  const lines=p[3].split('|');
+  const line=lines[Math.floor(Math.random()*lines.length)];
+  const distract=new Set();
+  let guard=0;
+  while(distract.size<3 && guard++<200){
+    const di=Math.floor(Math.random()*POEMS.length);
+    if(di===poemIdx) continue;
+    const a=POEMS[di][1];
+    if(a!==p[1]) distract.add(a);
+  }
+  const opts=[...distract];
+  opts.splice(Math.floor(Math.random()*4),0,p[1]);
+  return {
+    type:'author', typeLabel:'考考作者',
+    text:`「${line}」出自哪位诗人之手？`,
+    sub:p[0]===line?'':'——《'+p[0]+'》',
+    opts, answer:p[1], poem:poemIdx
+  };
+}
+function makeImgQ(poemIdx){
+  const p=POEMS[poemIdx];
+  const tags=p[4]?p[4].split(','):['moon','mountain'];
+  const lines=p[3].split('|');
+  const line=lines[0];
+  const distract=new Set();
+  let guard=0;
+  while(distract.size<3 && guard++<200){
+    const di=pickPoem(null,new Set([poemIdx]));
+    const dl=POEMS[di][3].split('|');
+    if(dl[0]!==line) distract.add(dl[0]);
+  }
+  const opts=[...distract];
+  opts.splice(Math.floor(Math.random()*4),0,line);
+  return {
+    type:'img', typeLabel:'看图猜诗',
+    text:'这幅水墨意境，最接近哪一句诗？',
+    sub:'', img:tags.slice(0,3), imgSeed:poemIdx*7+3,
+    opts, answer:line, poem:poemIdx
+  };
+}
+function makeMeanQ(poemIdx){
+  const p=POEMS[poemIdx];
+  const lines=p[3].split('|');
+  let line=lines[0], meaning='';
+  if(p[6]){ const parts=p[6].split('|'); meaning=parts[1]; }
+  else {
+    // 没写含义的诗，用主题式默认
+    meaning=`描绘了${{moon:'月夜',sun:'夕阳',snow:'雪景',flower:'花间',river:'江畔',mountain:'山中'}[tags0(p)]||'眼前'}景色，寄托诗人情思`;
+  }
+  const distract=new Set();
+  let guard=0;
+  while(distract.size<3 && guard++<300){
+    const di=Math.floor(Math.random()*POEMS.length);
+    if(di===poemIdx||!POEMS[di][6]) continue;
+    const d=POEMS[di][6].split('|')[1];
+    if(d!==meaning) distract.add(d);
+  }
+  while(distract.size<3) distract.add(['抒发壮志难酬的悲愤','表达对田园生活的向往','描写边塞战事的惨烈'][distract.size]);
+  const opts=[...distract];
+  opts.splice(Math.floor(Math.random()*4),0,meaning);
+  return {
+    type:'mean', typeLabel:'诗句含义',
+    text:`「${line}」表达的是？`,
+    sub:'——《'+p[0]+'》',
+    opts, answer:meaning, poem:poemIdx
+  };
+  function tags0(p){ return (p[4]||'').split(',')[0]; }
+}
+
+/* ================= 组卷 ================= */
+function buildQuiz(levelNo){
+  // 20题；难度波浪：第1-3题简单，之后每5题插1难
+  const qs=[];
+  const used=new Set();
+  const typeSeq=[];
+  const types=['top2bottom','top2bottom','top2bottom','bottom2top','bottom2top','img','author','mean','mean','mean'];
+  // 按 30/20/15/15/20 生成序列
+  const bag=[0,0,0,0,0,0,1,1,1,1,2,2,2,3,3,4,4,4,4];
+  for(let i=bag.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [bag[i],bag[j]]=[bag[j],bag[i]]; }
+  // 保底：前3题简单
+  for(let i=0;i<20;i++){
+    let lv;
+    if(i<3) lv=0;
+    else if((i+2)%5===0) lv=2;
+    else lv=Math.random()<0.55?0:1;
+    let pi=pickPoem(lv,used);
+    if(pi==null) pi=pickPoem(null,used);
+    used.add(pi);
+    const t=bag[i];
+    let q;
+    if(t===0) q=makePairQ(pi,true);
+    else if(t===1) q=makePairQ(pi,false);
+    else if(t===2) q=makeImgQ(pi);
+    else if(t===3) q=makeAuthorQ(pi);
+    else q=makeMeanQ(pi);
+    q.lv=lv; q.no=i+1;
+    qs.push(q);
+  }
+  return qs;
+}
+
+/* ================= UI 框架 ================= */
+const $=id=>document.getElementById(id);
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(t._tm); t._tm=setTimeout(()=>t.classList.remove('on'),1800); }
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  $(id).classList.add('on');
+  window.scrollTo(0,0);
+}
+
+/* ================= 首页 ================= */
+function renderHome(){
+  $('home-score').textContent=S.score;
+  $('home-rank').textContent=rankOf(S.score);
+  $('home-pass').textContent=S.passed.length+'/21';
+}
+
+/* ================= 选关 ================= */
+function renderLevels(){
+  const day=holidayDay();
+  $('lv-day').textContent='第 '+day+' 天';
+  $('lv-days').textContent='10月'+String(day).padStart(2,'0')+'日 · 已解锁 '+Math.min(day*3,21)+' / 21 关';
+  const g=$('lv-grid'); g.innerHTML='';
+  for(let i=1;i<=21;i++){
+    const cell=document.createElement('div');
+    cell.className='cell';
+    const unlocked=i<=day*3;
+    const done=S.passed.includes(i);
+    if(done) cell.classList.add('done');
+    if(!unlocked) cell.classList.add('lock');
+    if(unlocked&&!done) cell.classList.add('cur');
+    cell.innerHTML=`<div class="no">${['一','二','三','四','五','六','七','八','九','十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','廿一'][i-1]}</div>
+      <div class="st">${done?'已过':unlocked?'待挑战':'未解锁'}</div>
+      ${!unlocked?'<span class="lock-ic">🔒</span>':''}`;
+    if(unlocked) cell.onclick=()=>startLevel(i);
+    else cell.onclick=()=>toast('第 '+Math.ceil(i/3)+' 天解锁');
+    g.appendChild(cell);
+  }
+}
+
+/* ================= 答题 ================= */
+let cur=null;
+function startLevel(n){
+  cur={level:n, qs:buildQuiz(n), idx:0, score:0, correct:0, rescued:new Set()};
+  $('q-title').textContent='第 '+n+' 关';
+  show('s-play');
+  renderQ();
+}
+function renderQ(){
+  const q=cur.qs[cur.idx];
+  $('q-score').textContent=S.score+cur.score;
+  $('q-prog').style.width=(cur.idx/cur.qs.length*100)+'%';
+  $('q-type').textContent=q.typeLabel;
+  $('q-text').textContent=q.text;
+  $('q-sub').textContent=q.sub||'';
+  $('q-fb').className='feedback'; $('q-fb').innerHTML='';
+  $('q-next').style.display='none';
+  const cv=$('q-canvas');
+  if(q.img){ cv.style.display='block'; drawPoem(cv,q.img,q.imgSeed); }
+  else cv.style.display='none';
+  const box=$('q-opts'); box.innerHTML='';
+  const keys=['甲','乙','丙','丁'];
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='opt'; b.innerHTML=`<span class="k">${keys[i]}</span><span>${o}</span>`;
+    b.onclick=()=>answer(i,b);
+    box.appendChild(b);
+  });
+  $('q-help').disabled = cur.rescued.has(cur.idx) || S.rescues>=TOTAL_RESCUES;
+  $('q-rescue-left').textContent=TOTAL_RESCUES-S.rescues;
+  $('q-help').style.display = cur.rescued.has(cur.idx)?'none':'';
+}
+function answer(i,btn){
+  const q=cur.qs[cur.idx];
+  const opts=[...$('q-opts').children];
+  opts.forEach(b=>b.disabled=true);
+  const val=q.opts[i];
+  const right=val===q.answer;
+  if(right){
+    btn.classList.add('right');
+    cur.correct++;
+    let add=10+q.lv*5;
+    cur.score+=add; S.score+=add;
+    bumpUsage(q.poem);
+    const fb=$('q-fb'); fb.className='feedback ok';
+    fb.innerHTML=`✔ 答对了！+${add} 分　《${POEMS[q.poem][0]}》 ${POEMS[q.poem][1]}${q.lv===2?'（难题）':''}`;
+    save();
+  }else{
+    btn.classList.add('wrong');
+    opts.find(b=>b.textContent.includes(q.answer)||b.querySelector('span:last-child').textContent===q.answer)?.classList.add('right');
+    const fb=$('q-fb'); fb.className='feedback no';
+    fb.innerHTML=`✘ 正确答案：<b>${q.answer}</b>　《${POEMS[q.poem][0]}》 ${POEMS[q.poem][1]}`;
+  }
+  $('q-score').textContent=S.score;
+  $('q-next').style.display='block';
+  $('q-next').textContent = cur.idx+1>=cur.qs.length ? '查看结算' : '下一题';
+  $('q-next').onclick=nextQ;
+  $('q-help').style.display='none';
+}
+function nextQ(){
+  cur.idx++;
+  if(cur.idx>=cur.qs.length) finishLevel();
+  else renderQ();
+}
+function finishLevel(){
+  if(!S.passed.includes(cur.level)){ S.passed.push(cur.level); }
+  save();
+  $('r-score').textContent=cur.score;
+  $('r-rank').textContent=rankOf(S.score);
+  const pct=cur.correct/cur.qs.length;
+  $('r-emoji').textContent = pct>=0.9?'🏆':pct>=0.7?'🎉':pct>=0.5?'🍵':'💪';
+  $('r-title').textContent = '第 '+cur.level+' 关完成';
+  $('r-note').innerHTML=`答对 ${cur.correct} / ${cur.qs.length} 题<br>当前段位「${rankOf(S.score)}」· 总积分 ${S.score}`;
+  renderHome();
+  show('s-result');
+}
+
+/* ================= 救援流程 ================= */
+$('q-help').onclick=()=>{
+  if(S.rescues>=TOTAL_RESCUES){ toast('救援次数已用完'); return; }
+  const q=cur.qs[cur.idx];
+  const code=makeRescue(q.no+'_'+cur.level+'_'+q.poem);
+  $('rs-code').textContent=code;
+  const link=location.origin+location.pathname+'?rescue='+encodeURIComponent(code);
+  $('rs-link').textContent=link;
+  $('rs-paste').value='';
+  $('rs-err').textContent='';
+  $('m-send').classList.add('on');
+};
+$('rs-cancel').onclick=()=>$('m-send').classList.remove('on');
+function copyText(t,btn){
+  const done=()=>{ toast('已复制'); };
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(done).catch(()=>fallbackCopy(t,done));
+  }else fallbackCopy(t,done);
+}
+function fallbackCopy(t,done){
+  const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta);
+  ta.select(); try{ document.execCommand('copy'); done(); }catch(e){ toast('复制失败，请手动选择复制'); }
+  ta.remove();
+}
+$('rs-copy-code').onclick=()=>copyText($('rs-code').textContent);
+$('rs-copy-link').onclick=()=>copyText($('rs-link').textContent);
+$('rs-verify').onclick=()=>{
+  const v=$('rs-paste').value.trim();
+  const err=m=>{$('rs-err').textContent=m;};
+  if(!v) return err('请粘贴好友发回的回执码');
+  if(!v.startsWith('RT1.')) return err('这不是有效的回执码');
+  let obj;
+  try{ obj=decStr(v.slice(4)); }catch(e){ return err('回执码无法解析'); }
+  const q=cur.qs[cur.idx];
+  const expect=q.no+'_'+cur.level+'_'+q.poem;
+  if(obj.q!==expect) return err('回执与本题不匹配');
+  if(!obj.ok) return err('回执无效');
+  // 判对
+  S.rescues++; cur.rescued.add(cur.idx);
+  cur.correct++;
+  const add=10+q.lv*5; cur.score+=add; S.score+=add;
+  bumpUsage(q.poem); save();
+  $('m-send').classList.remove('on');
+  const opts=[...$('q-opts').children];
+  opts.forEach(b=>b.disabled=true);
+  opts.find(b=>b.querySelector('span:last-child').textContent===q.answer)?.classList.add('right');
+  const fb=$('q-fb'); fb.className='feedback ok';
+  fb.innerHTML=`🏅 好友救援成功！+${add} 分　《${POEMS[q.poem][0]}》 ${POEMS[q.poem][1]}`;
+  $('q-score').textContent=S.score;
+  $('q-next').style.display='block';
+  $('q-next').textContent = cur.idx+1>=cur.qs.length ? '查看结算' : '下一题';
+  $('q-next').onclick=nextQ;
+  $('q-rescue-left').textContent=TOTAL_RESCUES-S.rescues;
+  toast('救援成功，继续闯关！');
+};
+
+/* ================= 好友救援页 ================= */
+let rescueState=null;
+function tryUrlRescue(){
+  const m=location.search.match(/rescue=([^&]+)/);
+  if(m){
+    $('rc-input').value=decodeURIComponent(m[1]);
+    openRescueQuiz();
+  }
+}
+function openRescueQuiz(){
+  const v=$('rc-input').value.trim();
+  const err=m=>{$('rc-err').textContent=m;};
+  if(!v) return err('请粘贴救援口令');
+  if(!v.startsWith('RC1.')) return err('口令格式不对，应为 RC1. 开头');
+  let obj;
+  try{ obj=decStr(v.slice(4)); }catch(e){ return err('口令无法解析，请检查是否复制完整'); }
+  if(obj.e<Date.now()) return err('这个救援口令已过期');
+  const [qno,lvl,pi]=String(obj.q).split('_').map(Number);
+  const p=POEMS[pi];
+  if(!p) return err('题目不存在');
+  // 组一道题（与玩家端同题同构：用该诗出对应题型——默认出接句题，最通用）
+  const r=Math.random();
+  let q;
+  if(r<0.6) q=makePairQ(pi,Math.random()<0.5);
+  else if(r<0.8) q=makeAuthorQ(pi);
+  else q=makeMeanQ(pi);
+  rescueState={q,pi,code:v};
+  $('rc-form').style.display='none';
+  $('rc-quiz').style.display='block';
+  $('rc-type').textContent='好友救援 · '+q.typeLabel;
+  $('rc-text').textContent=q.text;
+  $('rc-sub').textContent=q.sub||'';
+  const cv=$('rc-canvas');
+  if(q.img){ cv.style.display='block'; drawPoem(cv,q.img,q.imgSeed); }
+  else cv.style.display='none';
+  const box=$('rc-opts'); box.innerHTML='';
+  const keys=['甲','乙','丙','丁'];
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='opt'; b.innerHTML=`<span class="k">${keys[i]}</span><span>${o}</span>`;
+    b.onclick=()=>{
+      [...box.children].forEach(x=>x.disabled=true);
+      const val=q.opts[i];
+      if(val===q.answer){
+        b.classList.add('right');
+        const receipt=makeReceipt(obj.q);
+        setTimeout(()=>{
+          $('rc-quiz').style.display='none';
+          $('rc-done').style.display='block';
+          $('rc-receipt').textContent=receipt;
+        },900);
+      }else{
+        b.classList.add('wrong');
+        [...box.children].find(x=>x.querySelector('span:last-child').textContent===q.answer)?.classList.add('right');
+        const fb=$('rc-fb'); fb.className='feedback no';
+        fb.innerHTML='很遗憾救援失败……这个口令作废了，让TA求助其他好友吧。';
+      }
+    };
+    box.appendChild(b);
+  });
+  const fb=$('rc-fb'); fb.className='feedback'; fb.innerHTML='';
+}
+$('rc-go').onclick=openRescueQuiz;
+$('rc-copy').onclick=()=>copyText($('rc-receipt').textContent);
+$('rc-join').onclick=()=>{ show('s-home'); };
+
+/* ================= 导航 ================= */
+$('btn-start').onclick=()=>{ renderLevels(); show('s-levels'); };
+$('btn-rescue-entry').onclick=()=>{ show('s-rescue'); };
+$('r-back').onclick=()=>{ renderLevels(); show('s-levels'); };
+document.querySelectorAll('.tab-bar button').forEach(b=>{
+  b.onclick=()=>{
+    const go=b.dataset.go;
+    if(go==='s-levels') renderLevels();
+    if(go==='s-home') renderHome();
+    show(go);
+  };
+});
+
+/* ================= 启动 ================= */
+renderHome();
+tryUrlRescue();
+</script>
+</body>
+</html>
